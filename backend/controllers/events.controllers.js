@@ -1,4 +1,8 @@
 import { Event } from "../models/events.models.js";
+import { Attendee } from "../models/attendee.model.js";
+import Papa from "papaparse";
+
+
 
 const addEvent = async(req, res) => {
     try {
@@ -113,9 +117,43 @@ const getEventById = async(req, res) => {
     }
 }
 
+const exportAsCSV = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const attendees = await Attendee.find({ eventId: eventId });
+
+    if (!attendees.length) {
+      return res.status(404).json({ message: "No attendees found" });
+    }
+    const csv = Papa.unparse(
+      attendees.map((a) => ({
+        Name: a.name,
+        Email: a.email,
+        TicketType: a.ticket.type,
+        Price: a.ticket.price,
+        Currency: a.ticket.currency,
+        Status: a.status,
+        RegisteredAt: a.createdAt,
+      }))
+    );
+
+    res.header("Content-Type", "text/csv");
+    res.attachment(`attendees-${eventId}.csv`);
+    return res.send(csv);
+
+  } catch (err) {
+    console.error("Error exporting CSV:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+//CSV
+
+
 export {
     addEvent,
     editEvent,
     getAllEventsByEventManagerId,
-    getEventById
+    getEventById,
+    exportAsCSV
 }

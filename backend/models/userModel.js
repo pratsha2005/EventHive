@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema(
 
     passwordHash: { type: String, required: true },
 
-    // Possible roles: admin, organizer, attendee
     role: {
       type: String,
       enum: ["admin", "organizer", "attendee"],
@@ -27,7 +26,7 @@ const userSchema = new mongoose.Schema(
 
     referralCode: { type: String, unique: true },
 
-    referredBy: { type: String, default: null }, // stores referralCode of inviter
+    referredBy: { type: String, default: null }, 
 
     isAccountVerified: { type: Boolean, default: false },
 
