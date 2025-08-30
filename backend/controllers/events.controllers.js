@@ -4,6 +4,37 @@ import Papa from "papaparse";
 import { uploadToCloudinary } from "../config/cloudinary.js";
 
 
+const deleteEvent = async(req, res) => {
+  try {
+    const {eventId} = req.params
+    const event = await Event.findById(eventId)
+    if(!event){
+      return res.status(400)
+      .json({
+        success: false,
+        message: "No such event found"
+      })
+    }
+
+    await Event.findByIdAndDelete(eventId)
+
+    return res.status(200).json({
+      success: true,
+      message: "Event deleted successfully"
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res.status(400)
+    .json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+
+
 
 const addEvent = async(req, res) => {
     try {
@@ -241,6 +272,7 @@ const getAttendeesByEventId = async (req, res) => {
 
 
 export {
+  deleteEvent,
     addEvent,
     editEvent,
     getAllEventsByEventManagerId,
