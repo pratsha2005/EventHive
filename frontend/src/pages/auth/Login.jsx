@@ -18,7 +18,6 @@ const Login = () => {
 
   axios.defaults.withCredentials = true;
 
-  // Load saved email if exists
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
@@ -40,7 +39,6 @@ const Login = () => {
         getUserData();
         toast.success(data.message);
 
-        // Save or remove email from localStorage based on rememberMe
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", email);
         } else {

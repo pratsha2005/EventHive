@@ -9,7 +9,6 @@ import {
 } from "../config/emailTemplates.js";
 import { v2 as cloudinary } from "cloudinary";
 
-// Helper: Generate referral code
 const generateReferralCode = (name) =>
   name.substring(0, 4).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
 
@@ -42,14 +41,11 @@ export const register = async (req, res) => {
       avatarUrl = imageUpload.secure_url;
     }
 
-    // Generate referral code for new user
     const referralCode = generateReferralCode(name);
 
-    // Base reward values (can move to config/env)
     const SIGNUP_BONUS = 50;
     const REFERRAL_BONUS = 100;
 
-    // Create new user
     const newUser = new User({
       name,
       email,
@@ -59,10 +55,9 @@ export const register = async (req, res) => {
       avatar: avatarUrl,
       referralCode,
       referredBy: referredBy || null,
-      loyaltyPoints: SIGNUP_BONUS, // signup bonus
+      loyaltyPoints: SIGNUP_BONUS, 
     });
 
-    // If user signed up with a referral
     if (referredBy) {
       const referrer = await User.findOne({ referralCode: referredBy });
       if (referrer) {
@@ -82,10 +77,9 @@ export const register = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000, 
     });
 
-    // Send Welcome Email
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email,
@@ -325,7 +319,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.passwordHash = hashedPassword; // FIXED: use passwordHash field
+    user.passwordHash = hashedPassword; 
     user.resetOtp = "";
     user.resetOtpExpireAt = 0;
     await user.save();

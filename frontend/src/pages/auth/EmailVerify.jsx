@@ -110,7 +110,7 @@ const EmailVerify = () => {
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Verify Your Email</h2>
               <p className="text-gray-600 mb-2 text-sm sm:text-base">We've sent a 6-digit code to</p>
               <div className="flex items-center justify-center">
-                <FiMail className="w-4 h-4 text-blue-500 mr-2" />  {/* ✅ replaced Mail */}
+                <FiMail className="w-4 h-4 text-blue-500 mr-2" />  
                 <span className="text-blue-600 font-medium text-sm sm:text-base break-all">{email}</span> 
               </div>
             </div>
