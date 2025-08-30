@@ -8,6 +8,7 @@ import {
   getPasswordResetEmailTemplate,
 } from "../config/emailTemplates.js";
 import { v2 as cloudinary } from "cloudinary";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 
 const generateReferralCode = (name) =>
   name.substring(0, 4).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
@@ -34,9 +35,7 @@ export const register = async (req, res) => {
     let avatarUrl = undefined;
     const imageFile = req.file;
     if (imageFile) {
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-        resource_type: "image",
-      });
+      const imageUpload = await uploadToCloudinary(imageFile.path, "avatars");
       avatarUrl = imageUpload.secure_url;
     }
 
