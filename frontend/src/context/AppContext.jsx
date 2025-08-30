@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { use } from "react";
 
 export const AppContext = createContext();
 
@@ -43,6 +44,7 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem("isLoggedin", isLoggedin ? "true" : "false");
+    getUserData();
   }, [isLoggedin]);
 
   
@@ -50,6 +52,7 @@ export const AppContextProvider = ({ children }) => {
     if (localStorage.getItem("isLoggedin") === "true") {
       getUserData();
     }
+    
     getAuthStatus();
   }, []);
 

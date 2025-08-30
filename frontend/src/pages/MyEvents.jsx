@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import Navbar from "../components/Navbar.jsx";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FaEdit } from "react-icons/fa";
 
 const PAGE_SIZE = 9;
 
@@ -20,7 +21,8 @@ const MyEvents = () => {
   const [category, setCategory] = useState("all");
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, userData } = useContext(AppContext);
+  const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
 
@@ -34,8 +36,10 @@ const MyEvents = () => {
   };
 
   useEffect(() => {
+    if (userData?.role === "organizer") {
       getMyEvents();
-  }, []);
+    }
+  }, [userData, backendUrl]);
 
   // Filtering
   const filtered = events.filter((ev) => {
@@ -102,46 +106,50 @@ const MyEvents = () => {
         {paged.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {paged.map((ev) => (
-              <Link to={`/events/${ev._id}`} key={ev._id}>
-                <article className="bg-white rounded-3xl shadow-xl border border-gray-200 hover:shadow-2xl transition transform hover:scale-[1.04]">
-                  <img
-                    src={
-                      ev.media?.bannerUrl || "https://via.placeholder.com/600x300"
-                    }
-                    alt={ev.title}
-                    className="w-full h-56 rounded-t-3xl object-cover"
-                    loading="lazy"
-                  />
-                  <div className="p-6">
-                    <div className="flex justify-between mb-3">
-                      <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-4 py-1 rounded-2xl">
-                        {ev.category}
-                      </span>
-                      <time
-                        dateTime={ev.startDateTime}
-                        className="text-sm text-gray-500"
-                      >
-                        {new Date(ev.startDateTime).toLocaleDateString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
-                      </time>
+              <div key={ev._id} className="relative">
+                <Link to={`/events/${ev._id}`}>
+                  <article className="bg-white rounded-3xl shadow-xl border border-gray-200 hover:shadow-2xl transition transform hover:scale-[1.04]">
+                    <img
+                      src={ev.media?.bannerUrl || "https://via.placeholder.com/600x300"}
+                      alt={ev.title}
+                      className="w-full h-56 rounded-t-3xl object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-6">
+                      <div className="flex justify-between mb-3">
+                        <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-4 py-1 rounded-2xl">
+                          {ev.category}
+                        </span>
+                        <time
+                          dateTime={ev.startDateTime}
+                          className="text-sm text-gray-500"
+                        >
+                          {new Date(ev.startDateTime).toLocaleDateString(
+                            undefined,
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )}
+                        </time>
+                      </div>
+
+                      <h3 className="font-semibold text-xl text-gray-800 mb-3">
+                        {ev.title}
+                      </h3>
+
+                      <p className="text-gray-600 text-sm mb-5 line-clamp-3">
+                        {ev.description}
+                      </p>
                     </div>
+                  </article>
+                </Link>
 
-                    <h3 className="font-semibold text-xl text-gray-800 mb-3">
-                      {ev.title}
-                    </h3>
-
-                    <p className="text-gray-600 text-sm mb-5 line-clamp-3">
-                      {ev.description}
-                    </p>
-                  </div>
-                </article>
-              </Link>
+                {/* Edit Icon */}
+                <button
+                  onClick={() => navigate(`/edit-event/${ev._id}`)}
+                  className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md hover:bg-indigo-50 transition"
+                >
+                  <FaEdit className="text-indigo-600" />
+                </button>
+              </div>
             ))}
           </div>
         ) : (
