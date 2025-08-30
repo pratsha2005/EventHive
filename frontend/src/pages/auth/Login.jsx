@@ -45,7 +45,7 @@ const Login = () => {
           localStorage.removeItem("rememberedEmail");
         }
 
-        navigate("/");
+        navigate("/attendeeHome");
       } else {
         toast.error(data.message);
       }
