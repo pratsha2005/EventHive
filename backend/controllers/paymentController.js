@@ -15,8 +15,10 @@ export const createCheckoutSession = async (req, res) => {
       line_items: attendees.map(att => ({
         price_data: {
           currency: "inr",
-          product_data: { name: `Ticket for ${att.name}` },
-          unit_amount: 200 * 100, // replace with att.price if dynamic
+          product_data: { 
+          name: `Ticket for ${att.name} of type ${att.ticketType}`
+        },
+          unit_amount: att.price * 100, 
         },
         quantity: 1,
       })),
@@ -27,7 +29,7 @@ export const createCheckoutSession = async (req, res) => {
         userId,
       },
       success_url: `http://localhost:4000/api/payment/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5173/payment-cancel`,
+      cancel_url: `http://localhost:4000/api/payment/payment-cancel`,
     });
 
     res.status(200).json({ url: session.url });
@@ -45,19 +47,21 @@ export const paymentSuccess = async (req, res) => {
     // fetch session back from Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    const { eventId, userId, attendees } = session.metadata;
+    const { eventId, attendees, userId } = session.metadata;
 
     const parsedAttendees = JSON.parse(attendees);
 
+    console.log({
+      eventId,
+      parsedAttendees,
+      userId
+    })
     // call your registration logic
-    console.log("Registering user after payment:", { eventId, userId, parsedAttendees });
-    // const registrationResult = await registerForEvent(eventId, parsedAttendees, userId);
-
-    // console.log("User registered after payment:", registrationResult);
-
+    await registerForEvent(eventId, parsedAttendees, userId);
     res.redirect("http://localhost:5173/my-bookings");
   } catch (err) {
     console.error("Payment success error:", err);
     res.status(500).send("Registration failed after payment");
   }
 };
+

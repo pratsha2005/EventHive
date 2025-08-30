@@ -59,12 +59,6 @@ const getAllEvents = async(req, res) => {
 }
 
 
-
-/**
- * Registers user for an event.
- * If called from Stripe payment success, attendees can be passed as parameter
- * instead of req.body.
- */
 const registerForEvent = async (eventId, attendeesInput, userIdInput) => {
   try {
     const userId = userIdInput;
