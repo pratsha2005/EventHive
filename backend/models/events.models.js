@@ -41,8 +41,8 @@ const eventSchema = mongoose.Schema(
       default: "draft",
     },
 
-    isFeatured: { type: Boolean, default: false },
-    isTrending: { type: Boolean, default: false },
+    // isFeatured: { type: Boolean, default: false },
+    // isTrending: { type: Boolean, default: false },
 
     tickets: [
       {
@@ -53,7 +53,7 @@ const eventSchema = mongoose.Schema(
           required: true,
         },
         price: { type: Number, required: true },
-        currency: { type: String, default: "USD" },
+        currency: { type: String, default: "INR" },
         saleStart: { type: Date },
         saleEnd: { type: Date },
         maxQuantity: { type: Number, required: true },
@@ -65,15 +65,15 @@ const eventSchema = mongoose.Schema(
     media: {
       bannerUrl: { type: String },
       gallery: [{ type: String }],
-      streamingLink: { type: String },
+    //   streamingLink: { type: String },
     },
 
-    socialLinks: {
-      facebook: { type: String },
-      instagram: { type: String },
-      twitter: { type: String },
-      whatsapp: { type: String },
-    },
+    // socialLinks: {
+    //   facebook: { type: String },
+    //   instagram: { type: String },
+    //   twitter: { type: String },
+    //   whatsapp: { type: String },
+    // },
   },
   { timestamps: true }
 );
