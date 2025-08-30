@@ -36,19 +36,17 @@ const onSubmitHandler = async (e) => {
     });
 
     if (data.success) {
+    const success = await getUserData();
+    if (success) {
       setIsLoggedin(true);
-      getUserData();
       localStorage.setItem("isLoggedin", "true");
       toast.success(data.message);
-
-      if (rememberMe) {
-        localStorage.setItem("rememberedEmail", email);
-      } else {
-        localStorage.removeItem("rememberedEmail");
-      }
-
       navigate("/");
     } else {
+      toast.error("Failed to fetch user data. Please try again.");
+    }
+  }
+ else {
       toast.error(data.message || "Login failed");
     }
   } catch (error) {

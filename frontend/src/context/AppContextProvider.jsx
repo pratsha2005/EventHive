@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { AppContext } from "./AppContext";
 
@@ -16,19 +15,27 @@ export const AppContextProvider = ({ children }) => {
   axios.defaults.baseURL = backendUrl;
 
   // Fetch user data
-  const getUserData = async () => {
+  const getUserData = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/user/data`);
-      data.success ? setUserData(data.userData) : toast.error(data.message);
+      const { data } = await axios.get("/api/user/data");
+      if (data.success) {
+        setUserData(data.userData);
+        return true;
+      } else {
+        setUserData(null);
+        return false;
+      }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Error fetching user data:", error);
+      setUserData(null);
+      return false;
     }
-  };
+  }, []);
 
   // Check authentication
-  const getAuthStatus = async () => {
+  const getAuthStatus = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/auth/is-auth`);
+      const { data } = await axios.get("/api/auth/is-auth");
       if (data.success) {
         setIsLoggedin(true);
         setUserData(data.userData);
@@ -37,23 +44,21 @@ export const AppContextProvider = ({ children }) => {
         setUserData(null);
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Auth check error:", error);
+      setIsLoggedin(false);
+      setUserData(null);
     }
-  };
+  }, []);
 
-  // Persist login state & fetch data when isLoggedin changes
+  // Persist login state
   useEffect(() => {
     localStorage.setItem("isLoggedin", isLoggedin ? "true" : "false");
-    getUserData();
   }, [isLoggedin]);
 
   // Initial auth check on mount
   useEffect(() => {
-    if (localStorage.getItem("isLoggedin") === "true") {
-      getUserData();
-    }
     getAuthStatus();
-  }, []);
+  }, [getAuthStatus]);
 
   const value = {
     backendUrl,
