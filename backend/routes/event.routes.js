@@ -5,12 +5,16 @@ import {
   exportAsCSV,
   getAllEventsByEventManagerId,
   getAttendeesByEventId,
-  getEventById
+  getEventById,
+  deleteEvent
 } from "../controllers/events.controllers.js";
 import upload from "../middlewares/multer.js"; 
 import userAuth from "../middlewares/userAuth.js";
 
 const router = Router();
+
+router.post('/deleteEvent/:eventId', deleteEvent)
+
 
 router.post(
   "/add-event",
