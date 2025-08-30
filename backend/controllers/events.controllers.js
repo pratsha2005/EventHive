@@ -8,7 +8,7 @@ import { uploadToCloudinary } from "../config/cloudinary.js";
 const addEvent = async(req, res) => {
     try {
         const formData = req.body
-
+        formData.organizerId = req.user._id
         // Handle uploaded photos from multer
         let bannerUrl;
         let galleryUrls = [];
