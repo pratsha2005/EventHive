@@ -282,3 +282,81 @@ export const getPasswordResetEmailTemplate = (otp) => {
 </body>
 </html>`;
 };
+
+export const getTicketEmailTemplate = (name, eventName, eventDate, venue, ticketType, qrCodeUrl) => {
+    const currentYear = new Date().getFullYear();
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Event Ticket</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f8fafc; min-height:100vh;">
+        <tr>
+            <td align="center" style="padding:20px 15px;">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.05); overflow:hidden; max-width:100%;">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding:40px 20px; color:#ffffff;">
+                            <h1 style="margin:0 0 10px 0; font-size:32px;">Your Ticket is Here!</h1>
+                            <p style="margin:0; font-size:18px; opacity:0.9;">Get ready for an amazing experience at ${eventName}</p>
+                        </td>
+                    </tr>
+
+                    <!-- Ticket Details -->
+                    <tr>
+                        <td style="padding:40px 30px;">
+                            <h2 style="margin:0 0 20px 0; color:#1a202c; font-size:28px; text-align:center;">Hello ${name}!</h2>
+                            <p style="margin:0 0 25px 0; color:#4a5568; font-size:16px; text-align:center;">Here are your ticket details for the upcoming event:</p>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7fafc; border-radius:8px; padding:20px; margin-bottom:30px; border-left:4px solid #667eea;">
+                                <tr>
+                                    <td style="padding:8px 0;">
+                                        <strong style="color:#2d3748;">Event:</strong> ${eventName}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;">
+                                        <strong style="color:#2d3748;">Date:</strong> ${eventDate}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;">
+                                        <strong style="color:#2d3748;">Venue:</strong> ${venue}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;">
+                                        <strong style="color:#2d3748;">Ticket Type:</strong> ${ticketType}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- QR Code -->
+                            <div style="text-align:center; margin-bottom:30px;">
+                                <p style="margin-bottom:10px; font-size:16px; color:#4a5568;">Scan this QR code at the event entrance:</p>
+                                <img src="${qrCodeUrl}" alt="Ticket QR Code" style="width:180px; height:180px; border-radius:12px;"/>
+                            </div>
+
+                            <p style="margin:0; font-size:16px; color:#4a5568; text-align:center;">We can't wait to see you there!</p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="background-color:#2d3748; padding:30px 20px; color:#a0aec0;">
+                            <p style="margin:0 0 10px 0; font-size:16px;">Crafted with ❤️ by <strong style="color:#667eea;">EventHive</strong></p>
+                            <p style="margin:0 0 10px 0; font-size:14px;">© ${currentYear} EventHive. All rights reserved.</p>
+                            <p style="margin:0; font-size:12px; opacity:0.8;">Please present this QR code at the entrance. This is an automated email.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+};

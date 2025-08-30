@@ -1,6 +1,10 @@
 import User from "../models/userModel.js";
 import { Event } from "../models/events.models.js"; 
 import { Attendee } from "../models/attendee.models.js";
+import Ticket from "../models/ticket.models.js"; 
+import QRCode from "qrcode";
+import mongoose from "mongoose";
+import { createTicketsForBooking } from "../services/ticketService.js";
 
 export const getUserData = async (req, res) => {
     try {
@@ -55,59 +59,67 @@ const getAllEvents = async(req, res) => {
 const registerForEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
-    const { attendees } = req.body; 
+    const { attendees } = req.body;
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     const event = await Event.findById(eventId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
+    if (!event) return res.status(404).json({ message: "Event not found" });
 
     const createdAttendees = [];
 
+    const booking = {
+      _id: new mongoose.Types.ObjectId(),
+      eventId,
+      tickets: [],
+      eventName: event.title,
+      eventDate: event.date,
+      venue: event.venue,
+    };
+
+    // Validate attendees and ticket availability
     for (const attendeeData of attendees) {
-      const ticket = event.tickets.id(attendeeData.ticketId);
+      const ticketInfo = event.tickets.id(attendeeData.ticketId);
+      if (!ticketInfo) return res.status(400).json({ message: `Invalid ticket for ${attendeeData.name}` });
+      if (ticketInfo.soldCount >= ticketInfo.maxQuantity) return res.status(400).json({ message: `Ticket ${ticketInfo.type} sold out` });
 
-      if (!ticket) {
-        return res
-          .status(400)
-          .json({ message: `Invalid ticket for attendee ${attendeeData.name}` });
-      }
+      ticketInfo.soldCount += 1;
 
-      if (ticket.soldCount >= ticket.maxQuantity) {
-        return res
-          .status(400)
-          .json({ message: `Ticket ${ticket.type} is sold out` });
-      }
+      booking.tickets.push({ type: ticketInfo.type });
 
       const attendee = await Attendee.create({
         eventId,
         name: attendeeData.name,
         email: attendeeData.email,
         ticket: {
-          ticketId: ticket._id,
-          type: ticket.type,
-          price: ticket.price,
-          currency: ticket.currency,
+          ticketId: ticketInfo._id,
+          type: ticketInfo.type,
+          price: ticketInfo.price,
+          currency: ticketInfo.currency,
         },
         status: "booked",
       });
       createdAttendees.push(attendee);
-
-      ticket.soldCount += 1;
     }
 
     await event.save();
 
+    // Generate tickets and send QR emails
+    const createdTickets = await createTicketsForBooking(booking, user);
+
     res.status(201).json({
       message: "Registration successful",
       attendees: createdAttendees,
+      tickets: createdTickets,
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
 export {
     getAllEvents,
     registerForEvent

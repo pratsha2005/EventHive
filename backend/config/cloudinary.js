@@ -14,15 +14,17 @@ export const connectCloudinary = async () => {
   }
 };
 
-// Upload helper
-export const uploadToCloudinary = async (filePath, folder) => {
+// Unified upload helper
+export const uploadToCloudinary = async (filePath, options = {}) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, { folder });
-    // delete local file after upload
-    fs.unlinkSync(filePath);
+    const result = await cloudinary.uploader.upload(filePath, options);
+    // delete local file after successful upload
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     return result;
   } catch (error) {
-    fs.unlinkSync(filePath);
+    // delete local file even if upload fails
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    console.error("Cloudinary upload error:", error);
     throw error;
   }
 };
