@@ -8,9 +8,9 @@ import EmailVerify from './pages/auth/EmailVerify'
 import ResetPassword from './pages/auth/ResetPassword'
 import LandingPage from './pages/Landing'
 import Organiser from './pages/user/Organiser'
-import MyBookings from './pages/user/MyBookings';
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
+import MyBookings from './pages/MyBookings';
 
 const App = () => {
   return (
@@ -28,6 +28,7 @@ const App = () => {
         <Route path="/events" element={<Events/>} />
         <Route path="/organise" element={<Organiser/>} />
         <Route path="/events/:id" element={<EventDetails />} />
+        <Route path='/my-bookings' element={<MyBookings/>}/>
 
       </Routes>
     </div>
