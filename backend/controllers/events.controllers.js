@@ -127,7 +127,7 @@ const editEvent = async (req, res) => {
 const getAllEventsByEventManagerId = async(req, res) => {
   
   try {
-    const managerId = req.user._id; 
+    const managerId = req.userId; 
     const events = await Event.find({ organizerId: managerId });
 
     return res.status(200).json({

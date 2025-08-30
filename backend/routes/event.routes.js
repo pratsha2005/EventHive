@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   addEvent,
   editEvent,
+  exportAsCSV,
   getAllEventsByEventManagerId,
   getEventById
 } from "../controllers/events.controllers.js";
@@ -31,5 +32,6 @@ router.post(
 
 router.get("/getAllEventByManagerId", userAuth, getAllEventsByEventManagerId);
 router.get("/getEventById/:eventId", getEventById);
+router.get('/exportCSV/:eventId', exportAsCSV)
 
 export default router;
