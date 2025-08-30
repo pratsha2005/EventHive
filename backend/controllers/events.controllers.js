@@ -1,7 +1,7 @@
 import { Event } from "../models/events.models.js";
 import { Attendee } from "../models/attendee.models.js";
 import Papa from "papaparse";
-import { uploadToCloudinary } from "../config/cloudigit pnary.js";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 
 
 
