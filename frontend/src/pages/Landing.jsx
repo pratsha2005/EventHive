@@ -63,21 +63,21 @@ const LandingPage = () => {
   const [showAll, setShowAll] = useState(false);
   const visibleEvents = showAll ? events : events.slice(0, 3);
 
-  // ✅ Handle "Get Started" based on login state
+  
   const handleGetStarted = () => {
     if (isLoggedin && userData?.role) {
       if (userData.role === "attendee") return navigate("/attend");
       if (userData.role === "organizer") return navigate("/organise");
       if (userData.role === "admin") return navigate("/admin");
     }
-    navigate("/login"); // default if not logged in
+    navigate("/login"); 
   };
 
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero Section */}
+      
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-indigo-800/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -117,7 +117,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Upcoming Events Section */}
+      
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -157,7 +157,7 @@ const LandingPage = () => {
             ))}
           </div>
 
-          {/* Show More / See Less */}
+          
           <div className="text-center mt-10">
             {!showAll ? (
               <button
@@ -178,7 +178,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      
       <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -198,7 +198,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Testimonial Section */}
+      
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">

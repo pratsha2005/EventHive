@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import Navbar from "../components/Navbar.jsx";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
-import { Link } from "react-router-dom"; // ⬅️ add this at the top
+import { Link } from "react-router-dom"; 
 
 const PAGE_SIZE = 9;
 
@@ -37,7 +37,7 @@ const Events = () => {
     getAllEvents();
   }, []);
 
-  // Filtering
+  
   const filtered = events.filter((ev) => {
     const matchCategory = category === "all" || ev.category === category;
     const matchDate =
@@ -49,14 +49,14 @@ const Events = () => {
     return matchCategory && matchDate && matchSearch;
   });
 
-  // Pagination
+
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
 
-  // Helper to render location
+ 
   const renderLocation = (loc) => {
     if (!loc) return "Location not available";
     if (typeof loc === "string") return loc;
@@ -77,7 +77,7 @@ const Events = () => {
     <>
       <Navbar />
 
-      {/* Mobile Search bar */}
+      
       <div className="sm:hidden px-4 pb-4 bg-white border-b border-gray-200">
         <input
           type="search"
@@ -89,7 +89,7 @@ const Events = () => {
       </div>
 
       <main className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-6 md:p-8 max-w-7xl mx-auto">
-        {/* Filters */}
+        
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6">
           <form
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto"
@@ -124,7 +124,7 @@ const Events = () => {
           </form>
         </div>
 
-        {/* Events grid */}
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {paged.map((ev) => (
             <Link to={`/events/${ev._id}`}>
@@ -174,7 +174,7 @@ const Events = () => {
           ))}
         </div>
 
-        {/* Pagination */}
+       
         <nav
           aria-label="Pagination"
           className="flex justify-center items-center gap-2 mt-12 flex-wrap"

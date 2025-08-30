@@ -66,21 +66,21 @@ const getSubtitle = () => {
     <>
       <style>{styles}</style>
       <div className="relative overflow-hidden w-full h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 min-w-[320px] max-w-[100vw]">
-        {/* Animated floating elements confined to left-half */}
+        
         <div className="absolute top-0 left-0 w-full h-full">
-          {/* Large floating circles */}
+         
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-400/20 rounded-full animate-pulse-glow"></div>
           <div className="absolute bottom-1/4 left-2/3 w-48 h-48 bg-indigo-400/20 rounded-full animate-bounce-slow"></div>
           
-          {/* Moving geometric shapes */}
+          
           <div className="absolute top-1/3 left-1/3 w-32 h-32 bg-gradient-to-r from-blue-300/30 to-purple-300/30 rounded-lg rotate-45 animate-float"></div>
           <div className="absolute bottom-1/3 left-1/6 w-24 h-24 bg-gradient-to-r from-cyan-300/30 to-blue-300/30 rounded-full animate-float-reverse"></div>
           
-          {/* Rotating elements */}
+         
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-2 border-blue-300/30 rounded-full animate-rotate-slow"></div>
           <div className="absolute top-3/4 left-1/3 w-16 h-16 bg-gradient-to-r from-purple-400/40 to-pink-400/40 rounded-lg animate-wave"></div>
           
-          {/* Small sparkle dots */}
+          
           {[...Array(15)].map((_, i) => (
             <div
               key={i}
@@ -92,14 +92,14 @@ const getSubtitle = () => {
               }}
             ></div>
           ))}
-          {/* Additional animated shapes */}
+          
           <div className="absolute top-1/6 left-2/3 w-20 h-20 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 rounded-full animate-bounce-slow" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-1/6 left-1/2 w-28 h-28 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 rounded-lg rotate-12 animate-float" style={{ animationDelay: '2s' }}></div>
-          {/* Floating triangles */}
+          
           <div className="absolute top-2/3 left-3/4 w-0 h-0 border-l-[20px] border-r-[20px] border-b-[35px] border-l-transparent border-r-transparent border-b-blue-300/30 animate-wave" style={{ animationDelay: '0.5s' }}></div>
           <div className="absolute top-1/5 left-2/3 w-0 h-0 border-l-[15px] border-r-[15px] border-b-[25px] border-l-transparent border-r-transparent border-b-purple-300/30 animate-float-reverse" style={{ animationDelay: '1.5s' }}></div>
         </div>
-        {/* Central animated logo/icon */}
+        
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-32 h-32 bg-gradient-to-r from-blue-400/30 to-indigo-400/30 rounded-full flex items-center justify-center animate-pulse-glow">
             <div className="w-20 h-20 bg-gradient-to-r from-blue-500/40 to-purple-500/40 rounded-full flex items-center justify-center animate-rotate-slow">
@@ -107,9 +107,9 @@ const getSubtitle = () => {
             </div>
           </div>
         </div>
-        {/* Gradient overlay confined to left-half */}
+       
         <div className="absolute inset-0 bg-gradient-to-r from-blue-800/30 to-transparent"></div>
-        {/* Content overlay */}
+       
         <div className="relative z-10 flex items-center justify-center h-full p-12">
           <div className="text-center text-white w-full">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">

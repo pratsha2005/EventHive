@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiMail } from "react-icons/fi";  // ✅ replaced lucide-react
+import { FiMail } from "react-icons/fi";  
 import LottieBackground from "../../components/LottieBackground";
 import { AppContext } from "../../context/AppContext";
 import axios from "axios";

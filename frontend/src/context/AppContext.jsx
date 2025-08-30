@@ -7,7 +7,7 @@ export const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
-  // ✅ Initialize isLoggedin from localStorage
+  
   const [isLoggedin, setIsLoggedin] = useState(
     localStorage.getItem("isLoggedin") === "true"
   );
@@ -40,12 +40,12 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // ✅ Keep localStorage in sync
+
   useEffect(() => {
     localStorage.setItem("isLoggedin", isLoggedin ? "true" : "false");
   }, [isLoggedin]);
 
-  // ✅ On app start, check auth + get user data if already logged in
+  
   useEffect(() => {
     if (localStorage.getItem("isLoggedin") === "true") {
       getUserData();
