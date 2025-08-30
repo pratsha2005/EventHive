@@ -29,11 +29,11 @@ const ROLE_OPTIONS = [
     label: "Organizer",
     icon: <FaUsers style={{ color: "#7c3aed", marginRight: 9 }} />,
   },
-  {
-    value: "admin",
-    label: "Administrator",
-    icon: <FaCrown style={{ color: "#1e40af", marginRight: 9 }} />,
-  },
+  // {
+  //   value: "admin",
+  //   label: "Administrator",
+  //   icon: <FaCrown style={{ color: "#1e40af", marginRight: 9 }} />,
+  // },
 ];
 
 const customStyles = {
@@ -91,7 +91,6 @@ const Register = () => {
   });
 
   const [agreementChecked, setAgreementChecked] = useState(false);
-  const [agreementError, setAgreementError] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -162,15 +161,6 @@ const Register = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
-    if (!agreementChecked) {
-      setAgreementError(
-        "You must agree to the Terms of Service and Privacy Policy."
-      );
-      return;
-    } else {
-      setAgreementError("");
-    }
 
     if (formData.password !== formData.confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -452,39 +442,6 @@ const Register = () => {
                   <p className="text-red-600 text-xs mt-1">{passwordError}</p>
                 )}
               </div>
-
-              {/* Agreement */}
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="agreement"
-                  checked={agreementChecked}
-                  onChange={(e) => setAgreementChecked(e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 flex-shrink-0"
-                />
-                <label
-                  htmlFor="agreement"
-                  className="ml-2 text-xs sm:text-sm text-gray-600 cursor-pointer"
-                >
-                  I agree to the{" "}
-                  <a
-                    href="#"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="#"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Privacy Policy
-                  </a>
-                </label>
-              </div>
-              {agreementError && (
-                <p className="text-red-600 text-xs mt-1">{agreementError}</p>
-              )}
 
               <button
                 type="submit"
