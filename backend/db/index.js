@@ -1,13 +1,10 @@
-import mongoose from 'mongoose';
+import { PrismaClient } from '@prisma/client/edge'
+import { withAccelerate } from '@prisma/extension-accelerate'
 
-const connectDB = async () => {
-    try {
-        await mongoose.connect(`${process.env.MONGODB_URI}/${process.env.DB_NAME}`)
-        console.log('Database Connected Successfully')
-    } catch (error) {
-        console.error('Database Connection Failed: ', error)
-        process.exit(1)
-    }
-}
+const prisma = new PrismaClient().$extends(withAccelerate())
 
-export default connectDB;
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
+export default prisma

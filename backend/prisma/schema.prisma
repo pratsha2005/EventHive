@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  phone             String   @unique
+  passwordHash      String
+  role              String   @default("attendee")
+  avatar            String?
+  loyaltyPoints     Int      @default(0)
+  referralCode      String   @unique
+  referredBy        String?
+  isAccountVerified Boolean  @default(false)
+  verifyOtp         String?
+  verifyOtpExpireAt BigInt?
+  resetOtp          String?
+  resetOtpExpireAt  BigInt?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  events  Event[]  @relation("UserEvents")
+  tickets Ticket[]
+}
+
+model Event {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  category      String
+  tags          String[]
+  startDateTime DateTime
+  endDateTime   DateTime
+
+  locationVenue   String?
+  locationAddress String?
+  locationCity    String?
+  locationState   String?
+  locationCountry String?
+  locationPincode String?
+  geoLat          Float?
+  geoLng          Float?
+
+  organizerId String
+  organizer   User   @relation("UserEvents", fields: [organizerId], references: [id])
+
+  status       String        @default("published")
+  tickets      EventTicket[]
+  attendees    Attendee[]
+  eventTickets Ticket[]
+
+  mediaBannerUrl String?
+  mediaGallery   String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EventTicket {
+  id           String    @id @default(uuid())
+  eventId      String
+  event        Event     @relation(fields: [eventId], references: [id])
+  type         String
+  price        Float
+  currency     String    @default("INR")
+  saleStart    DateTime?
+  saleEnd      DateTime?
+  maxQuantity  Int
+  perUserLimit Int       @default(1)
+  soldCount    Int       @default(0)
+
+  attendees Attendee[]
+}
+
+model Attendee {
+  id      String @id @default(uuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+  name    String
+  email   String
+
+  ticketId String
+  ticket   EventTicket @relation(fields: [ticketId], references: [id])
+
+  status    String   @default("booked")
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  ticketType  String
+  qrCode      String?
+  barcode     String?
+  status      String   @default("active")
+  sentToEmail Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

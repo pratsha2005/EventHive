@@ -1,12 +1,12 @@
-import QRCode from 'qrcode';
-import Ticket from '../models/ticket.models.js';
-import transporter from '../config/nodemailer.js';
-import { getTicketEmailTemplate } from '../config/emailTemplates.js';
-import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs/promises';
-import path from 'path';
+import QRCode from "qrcode";
+import prisma from "../db/index.js";
+import transporter from "../config/nodemailer.js";
+import { getTicketEmailTemplate } from "../config/emailTemplates.js";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs/promises";
+import path from "path";
 
-// 1️⃣ Generate QR Code and save temporarily
+// Generate QR Code temp file
 const generateQRCodeTempFile = async (ticketData) => {
   const qrData = JSON.stringify(ticketData);
   const tempPath = path.join(process.cwd(), `temp-${Date.now()}.png`);
@@ -14,68 +14,73 @@ const generateQRCodeTempFile = async (ticketData) => {
   return tempPath;
 };
 
-// 2️⃣ Upload QR Code to Cloudinary and delete temp file
+// Upload QR Code to Cloudinary + cleanup
 const uploadQRCodeToCloudinary = async (filePath) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, { folder: 'event-tickets' });
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "event-tickets",
+    });
     return result.secure_url;
   } finally {
-    // Delete temp file regardless of upload success/failure
     try {
       await fs.unlink(filePath);
-      console.log(`Temp QR file deleted: ${filePath}`);
     } catch (err) {
-      console.error(`Failed to delete temp QR file: ${filePath}`, err);
+      console.error("Failed to delete temp QR file:", err);
     }
   }
 };
 
-// 3️⃣ Send ticket email
-export const sendTicketEmail = async ({ email, name, eventName, eventDate, venue, ticketType, qrCodeUrl }) => {
-  try {
-    const htmlContent = getTicketEmailTemplate(name, eventName, eventDate, venue, ticketType, qrCodeUrl);
+// Send ticket email
+const sendTicketEmail = async ({
+  email,
+  name,
+  eventName,
+  eventDate,
+  venue,
+  ticketType,
+  qrCodeUrl,
+}) => {
+  const htmlContent = getTicketEmailTemplate(
+    name,
+    eventName,
+    eventDate,
+    venue,
+    ticketType,
+    qrCodeUrl
+  );
 
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: `Your Ticket for ${eventName}`,
-      html: htmlContent,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Ticket email sent: %s', info.messageId);
-    return info;
-  } catch (err) {
-    console.error('Error sending ticket email:', err);
-    throw err;
-  }
+  await transporter.sendMail({
+    from: process.env.SENDER_EMAIL,
+    to: email,
+    subject: `Your Ticket for ${eventName}`,
+    html: htmlContent,
+  });
 };
 
-// 4️⃣ Create tickets for a booking and send QR email to all attendees
+// Main function
 export const createTicketsForBooking = async (booking, attendees) => {
   const ticketsCreated = [];
 
   for (const attendee of attendees) {
-    const ticket = new Ticket({
-      bookingId: booking._id,
-      eventId: booking.eventId,
-      userId: attendee._id, // assign attendee userId if exists
-      ticketType: attendee.ticket?.type || 'General',
-      delivery: { sentToEmail: true},
-    });
-
-    // Generate QR -> Upload to Cloudinary
+    // Generate QR Code
     const tempFile = await generateQRCodeTempFile({
-      ticketId: ticket._id,
-      bookingId: ticket.bookingId,
-      eventId: ticket.eventId,
-      userId: attendee._id,
+      eventId: booking.eventId,
+      userId: booking.userId, // Always buyer
+      attendeeId: attendee.id,
     });
-
     const qrUrl = await uploadQRCodeToCloudinary(tempFile);
 
-    ticket.qrCode = qrUrl;
-    await ticket.save();
+    // Save ticket for buyer
+    const ticket = await prisma.ticket.create({
+      data: {
+        eventId: booking.eventId,
+        userId: booking.userId, // Buyer
+        ticketType: attendee.ticket?.type || "General",
+        qrCode: qrUrl,
+        sentToEmail: true,
+      },
+    });
+
     ticketsCreated.push(ticket);
 
     // Send email to attendee

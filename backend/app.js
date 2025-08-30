@@ -2,20 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
-
-import connectDB from './db/index.js';
+import { PrismaClient } from '@prisma/client';
 import { connectCloudinary } from './config/cloudinary.js';
 
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import eventRouter from './routes/event.routes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 4000;
 
-connectDB();
+// Prisma client (for Postgres)
+const prisma = new PrismaClient();
+export default prisma;
+
+// Cloudinary
 connectCloudinary();
 
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -41,10 +46,10 @@ app.use(
   })
 );
 
-// API Endpoints
+// API Routes
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/events', eventRouter);
-app.use('/api/payment', paymentRoutes); // <-- Add payment endpoints
+app.use('/api/payment', paymentRoutes);
 
-app.listen(port, () => console.log(`Server started on PORT: ${port}`));
+app.listen(port, () => console.log(`🚀 Server started on PORT: ${port}`));
