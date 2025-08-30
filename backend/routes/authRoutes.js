@@ -1,7 +1,7 @@
 import express from "express";
 import { register,login,logout, sendVerifyOtp, verifyEmail, isAuthenticated, sendResetOtp, resetPassword } from "../controllers/authController.js";
-import userAuth from "../middleware/userAuth.js";
-import upload from '../middleware/multer.js';
+import userAuth from "../middlewares/userAuth.js";
+import upload from '../middlewares/multer.js';
 
 const authRouter = express.Router();
 
