@@ -4,8 +4,9 @@ import { Attendee } from "../models/attendee.models.js";
 import Ticket from "../models/ticket.models.js"; 
 import mongoose from "mongoose";
 import { createTicketsForBooking } from "../services/ticketService.js";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 
-export const getUserData = async (req, res) => {
+ const getUserData = async (req, res) => {
     try {
         const userId = req.userId; 
         const user = await User.findById(userId).lean();
@@ -21,6 +22,7 @@ export const getUserData = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                avatar: user.avatar,
                 isAccountVerified: user.isAccountVerified
             }
         });
@@ -168,8 +170,44 @@ const getMyBookings = async (req, res) => {
   }
 };
 
+ const updateProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ success: false, message: "Name is required" });
+    }
+
+    const updateData = { name };
+
+    // Handle avatar upload if present
+    if (req.file) {
+      // If using Cloudinary
+      const uploadResult = await uploadToCloudinary(req.file.path, "avatars");
+      updateData.avatar = uploadResult.secure_url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 
 export {
+  updateProfile,
+  getUserData,
     getAllEvents,
     getMyBookings,
     registerForEvent

@@ -6,64 +6,68 @@ import { uploadToCloudinary } from "../config/cloudinary.js";
 
 
 const addEvent = async(req, res) => {
-    try {
-        const formData = req.body
-        formData.organizerId = req.userId
+  try {
+      const formData = req.body
+      formData.organizerId = req.userId
 
-        if(formData.tickets){
-          formData.tickets = JSON.parse(formData.tickets)
+      if(formData.tickets){
+        formData.tickets = JSON.parse(formData.tickets)
+      }
+
+      if (formData.location) {
+        try {
+          formData.location = JSON.parse(formData.location)
+        } catch (err) {
+          console.error("Failed to parse location:", err)
         }
+      }
 
-        // Handle uploaded photos from multer
-        let bannerUrl;
-        let galleryUrls = [];
+      // Handle uploaded photos from multer
+      let bannerUrl;
+      let galleryUrls = [];
 
-        if (req.files) {
-            if (req.files.banner && req.files.banner.length > 0) {
-                const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
-                bannerUrl = bannerUpload.secure_url;
-            }
+      if (req.files) {
+          if (req.files.banner && req.files.banner.length > 0) {
+              const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
+              bannerUrl = bannerUpload.secure_url;
+          }
 
-            if (req.files.gallery && req.files.gallery.length > 0) {
-                const galleryUploads = await Promise.all(
-                req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
-                );
-                galleryUrls = galleryUploads.map((p) => p.secure_url);
-            }
-        }
+          if (req.files.gallery && req.files.gallery.length > 0) {
+              const galleryUploads = await Promise.all(
+              req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
+              );
+              galleryUrls = galleryUploads.map((p) => p.secure_url);
+          }
+      }
 
-        formData.media = {
-            bannerUrl,
-            gallery: galleryUrls,
-        };
+      formData.media = {
+          bannerUrl,
+          gallery: galleryUrls,
+      };
 
+      const newEvent = await Event.create(formData);
 
-        const newEvent = await Event.create(
-          formData
-        )
+      const createdEvent = await Event.findById(newEvent._id);
 
-        const createdEvent = await Event.findById(newEvent._id);
+      if(!createdEvent){
+          return res.status(400).json({
+              success: false,
+              message: "Something went wrong in creating the event"
+          })
+      }
 
-        if(!createdEvent){
-            return res.status(400).json({
-                success: false,
-                message: "Something went wrong in creating the event"
-            })
-        }
+      return res.status(200).json({
+          success: true,
+          message: "Event created successfully",
+          data: createdEvent
+      })
 
-        return res.status(200)
-        .json({
-            success: true,
-            message: "Event created successfully",
-            data: createdEvent
-        })
-
-    } catch (error) {
-        console.log(error)
-        return res.status(400).json({
-            success: false, message: error.message 
-        });
-    }
+  } catch (error) {
+      console.log(error)
+      return res.status(400).json({
+          success: false, message: error.message 
+      });
+  }
 }
 
 const editEvent = async (req, res) => {
@@ -72,16 +76,31 @@ const editEvent = async (req, res) => {
     const eventToBeEdited = await Event.findById(eventId);
 
     if (!eventToBeEdited) {
-      return res.status(400).json({
-        success: false,
-        message: "No Event was found",
-      });
+      return res.status(400).json({ success: false, message: "No Event was found" });
+    }
+
+    // Parse tickets and location if they are strings
+    if (req.body.tickets && typeof req.body.tickets === "string") {
+      try {
+        req.body.tickets = JSON.parse(req.body.tickets);
+      } catch (err) {
+        console.error("Failed to parse tickets:", err);
+        req.body.tickets = [];
+      }
+    }
+
+    if (req.body.location && typeof req.body.location === "string") {
+      try {
+        req.body.location = JSON.parse(req.body.location);
+      } catch (err) {
+        console.error("Failed to parse location:", err);
+      }
     }
 
     // Handle uploaded files
     if (req.files) {
       if (req.files.banner && req.files.banner.length > 0) {
-        const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
+        const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, {folder: "events/banner"});
         req.body["media.bannerUrl"] = bannerUpload.secure_url;
       }
 

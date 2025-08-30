@@ -1,16 +1,18 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Navbar from "../components/Navbar.jsx";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
+import { useParams, useNavigate } from "react-router-dom";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { toast } from "react-toastify";
 
-
 const containerStyle = { width: "100%", height: "300px" };
-const defaultCenter = { lat: 28.6139, lng: 77.209 }; // default Delhi
+const defaultCenter = { lat: 28.6139, lng: 77.209 };
 
-const AddEvent = () => {
+const EditEvent = () => {
   const { backendUrl } = useContext(AppContext);
+  const { eventId } = useParams();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     title: "",
@@ -39,6 +41,35 @@ const AddEvent = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
+  // ---------- Fetch Event ----------
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/events/getEventById/${eventId}`, { withCredentials: true });
+        console.log("Fetched event data:", data);
+        const ev = data.data;
+
+        setForm({
+          title: ev.title,
+          description: ev.description,
+          startDateTime: ev.startDateTime.slice(0, 16),
+          endDateTime: ev.endDateTime.slice(0, 16),
+          category: ev.category,
+          tickets: ev.tickets || [],
+        });
+
+        if (ev.media?.bannerUrl) setBanner(ev.media.bannerUrl);
+        if (ev.media?.gallery) setGallery(ev.media.gallery || []);
+
+        if (ev.location) setLocation(ev.location);
+      } catch (err) {
+        console.error(err);
+        toast.error("❌ Failed to load event data");
+      }
+    };
+    fetchEvent();
+  }, [backendUrl, eventId]);
+
   // ---------- Form Handlers ----------
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -58,7 +89,7 @@ const AddEvent = () => {
   // ---------- Location Handlers ----------
   const handleLocationChange = async (e) => {
     const { name, value } = e.target;
-    setLocation((prev) => ({ ...prev, [name]: value }));
+    setLocation(prev => ({ ...prev, [name]: value }));
 
     if (name === "pincode" && value.length >= 5) {
       try {
@@ -71,27 +102,17 @@ const AddEvent = () => {
           const result = res.data.results[0];
           const geo = result.geometry.location;
 
-          // Initialize
           let city = "", state = "", country = "", address = "";
 
-          result.address_components.forEach((comp) => {
-            if (
-              comp.types.includes("locality") ||
-              comp.types.includes("postal_town") ||
-              comp.types.includes("sublocality_level_1")
-            )
-              city = comp.long_name;
+          result.address_components.forEach(comp => {
+            if (comp.types.includes("locality") || comp.types.includes("postal_town") || comp.types.includes("sublocality_level_1")) city = comp.long_name;
             if (comp.types.includes("administrative_area_level_1")) state = comp.long_name;
             if (comp.types.includes("country")) country = comp.long_name;
-            if (
-              comp.types.includes("route") ||
-              comp.types.includes("street_address") ||
-              comp.types.includes("street_number")
-            )
+            if (comp.types.includes("route") || comp.types.includes("street_address") || comp.types.includes("street_number"))
               address = address ? `${address}, ${comp.long_name}` : comp.long_name;
           });
 
-          setLocation((prev) => ({
+          setLocation(prev => ({
             ...prev,
             city: city || prev.city,
             state: state || prev.state,
@@ -107,47 +128,47 @@ const AddEvent = () => {
   };
 
   const handleMapClick = (e) => {
-    setLocation((prev) => ({ ...prev, geo: { lat: e.latLng.lat(), lng: e.latLng.lng() } }));
+    setLocation(prev => ({ ...prev, geo: { lat: e.latLng.lat(), lng: e.latLng.lng() } }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
+  // ---------- Submit Handler ----------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-  try {
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("startDateTime", form.startDateTime);
-    formData.append("endDateTime", form.endDateTime);
-    formData.append("category", form.category);
-    formData.append("tickets", JSON.stringify(form.tickets));
-    formData.append("location", JSON.stringify(location));
+    try {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("startDateTime", form.startDateTime);
+      formData.append("endDateTime", form.endDateTime);
+      formData.append("category", form.category);
+      formData.append("tickets", JSON.stringify(form.tickets));
+      formData.append("location", JSON.stringify(location));
 
-    if (banner) formData.append("banner", banner);
-    gallery.forEach((file) => formData.append("gallery", file));
+      if (banner instanceof File) formData.append("banner", banner);
+      gallery.forEach(file => { if(file instanceof File) formData.append("gallery", file); });
 
-    const { data } = await axios.post(`${backendUrl}/api/events/add-event`, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      await axios.post(`${backendUrl}/api/events/edit-event/${eventId}`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    toast.success("✅ Event created successfully!");
-    console.log("Event created:", data);
-  } catch (err) {
-    console.error(err);
-    toast.error("❌ Failed to create event");
-  } finally {
-    setSubmitting(false);
-  }
-};
-
+      toast.success("✅ Event updated successfully!");
+      navigate("/my-events");
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Failed to update event");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
       <Navbar />
       <main className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-6">
-        <h1 className="text-2xl font-bold mb-6">Add New Event</h1>
+        <h1 className="text-2xl font-bold mb-6">Edit Event</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
@@ -193,22 +214,19 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Category */}
-          <div>
-            <label className="block mb-1 font-semibold">Category</label>
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full border p-2 rounded-md"
-              required
-            >
-              <option value="">Select Category</option>
-              <option value="workshop">Workshop</option>
-              <option value="concert">Concert</option>
-              <option value="sports">Sports</option>
-              <option value="hackathon">Hackathon</option>
-            </select>
-          </div>
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full border p-2 rounded-md"
+            required
+          >
+            <option value="">Select Category</option>
+            <option value="workshop">Workshop</option>
+            <option value="concert">Concert</option>
+            <option value="sports">Sports</option>
+            <option value="hackathon">Hackathon</option>
+          </select>
 
           {/* Tickets */}
           <div>
@@ -248,17 +266,6 @@ const handleSubmit = async (e) => {
                   onChange={(e) => handleTicketChange(i, "maxQuantity", e.target.value)}
                   className="w-1/4 border p-2 rounded-md"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newTickets = form.tickets.filter((_, idx) => idx !== i);
-                    setForm({ ...form, tickets: newTickets });
-                  }}
-                  className="text-red-600 hover:text-red-800 ml-2"
-                  title="Delete Ticket"
-                >
-                  🗑️
-                </button>
               </div>
             ))}
             <button
@@ -274,6 +281,9 @@ const handleSubmit = async (e) => {
           <div>
             <label className="block mb-1 font-semibold">Banner</label>
             <input type="file" accept="image/*" onChange={(e) => setBanner(e.target.files[0])} />
+            {banner && typeof banner === "string" && (
+              <img src={banner} alt="Banner" className="w-full h-48 object-cover mt-2 rounded-md" />
+            )}
           </div>
 
           {/* Gallery */}
@@ -285,11 +295,23 @@ const handleSubmit = async (e) => {
               multiple
               onChange={(e) => setGallery(Array.from(e.target.files))}
             />
+            {gallery.length > 0 && (
+              <div className="flex gap-2 mt-2 overflow-x-auto">
+                {gallery.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={typeof img === "string" ? img : URL.createObjectURL(img)}
+                    alt="Gallery"
+                    className="w-24 h-24 object-cover rounded-md"
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Location Fields */}
+          {/* Location */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["venue","address","city","state","country","pincode"].map((field) => (
+            {["venue","address","city","state","country","pincode"].map(field => (
               <input
                 key={field}
                 type="text"
@@ -303,7 +325,7 @@ const handleSubmit = async (e) => {
             ))}
           </div>
 
-          {/* Google Map */}
+          {/* Map */}
           <div>
             <label className="block mb-2 font-semibold">Pick Event Location</label>
             {isLoaded ? (
@@ -323,13 +345,12 @@ const handleSubmit = async (e) => {
             </p>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={submitting}
             className="px-4 py-2 bg-green-600 text-white rounded-md"
           >
-            {submitting ? "Submitting..." : "Create Event"}
+            {submitting ? "Updating..." : "Update Event"}
           </button>
         </form>
       </main>
@@ -337,4 +358,4 @@ const handleSubmit = async (e) => {
   );
 };
 
-export default AddEvent;
+export default EditEvent;

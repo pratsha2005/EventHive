@@ -41,7 +41,7 @@ const Navbar = () => {
   const organizerNav = [
     { name: "Home", href: "/", icon: FiHome },
     { name: "Create Event", href: "/create-event", icon: FiPlusCircle },
-    { name: "Analytics", href: "/organiser-analytics", icon: FiBarChart2 },
+    // { name: "Analytics", href: "/organiser-analytics", icon: FiBarChart2 },
   ];
 
   const adminNav = [

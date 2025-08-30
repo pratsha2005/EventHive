@@ -14,6 +14,8 @@ import MyBookings from './pages/MyBookings';
 import AddEvent from './pages/AddEvent';
 import MyEvents from './pages/MyEvents';
 import AttendeeDetails from './pages/AttendeeDetails';
+import Profile from './pages/Profile';
+import EditEvent from './pages/EditEvent';
 
 const App = () => {
   return (
@@ -35,6 +37,8 @@ const App = () => {
         <Route path='/create-event' element={<AddEvent/>}/>
         <Route path='/my-events' element={<MyEvents/>}/>
         <Route path='/events/attendees/:id' element={<AttendeeDetails/>}/>
+        <Route path='/profile' element={<Profile/>}/>
+        <Route path='edit-event/:eventId' element={<EditEvent/>}/>
       </Routes>
     </div>
   )
