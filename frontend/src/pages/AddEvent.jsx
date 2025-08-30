@@ -5,9 +5,8 @@ import { AppContext } from "../context/AppContext.jsx";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { toast } from "react-toastify";
 
-
 const containerStyle = { width: "100%", height: "300px" };
-const defaultCenter = { lat: 28.6139, lng: 77.209 }; // default Delhi
+const defaultCenter = { lat: 28.6139, lng: 77.209 }; // Delhi
 
 const AddEvent = () => {
   const { backendUrl } = useContext(AppContext);
@@ -20,7 +19,6 @@ const AddEvent = () => {
     category: "",
     tickets: [],
   });
-
   const [banner, setBanner] = useState(null);
   const [gallery, setGallery] = useState([]);
   const [location, setLocation] = useState({
@@ -32,14 +30,12 @@ const AddEvent = () => {
     pincode: "",
     geo: { ...defaultCenter },
   });
-
   const [submitting, setSubmitting] = useState(false);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
-  // ---------- Form Handlers ----------
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleTicketChange = (index, field, value) => {
@@ -55,43 +51,27 @@ const AddEvent = () => {
     });
   };
 
-  // ---------- Location Handlers ----------
   const handleLocationChange = async (e) => {
     const { name, value } = e.target;
     setLocation((prev) => ({ ...prev, [name]: value }));
-
     if (name === "pincode" && value.length >= 5) {
       try {
         const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
         const res = await axios.get(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${value}&key=${apiKey}`
         );
-
         if (res.data.status === "OK") {
           const result = res.data.results[0];
           const geo = result.geometry.location;
-
-          // Initialize
           let city = "", state = "", country = "", address = "";
-
           result.address_components.forEach((comp) => {
-            if (
-              comp.types.includes("locality") ||
-              comp.types.includes("postal_town") ||
-              comp.types.includes("sublocality_level_1")
-            )
-              city = comp.long_name;
+            if (["locality","postal_town","sublocality_level_1"].some(t => comp.types.includes(t))) city = comp.long_name;
             if (comp.types.includes("administrative_area_level_1")) state = comp.long_name;
             if (comp.types.includes("country")) country = comp.long_name;
-            if (
-              comp.types.includes("route") ||
-              comp.types.includes("street_address") ||
-              comp.types.includes("street_number")
-            )
+            if (["route","street_address","street_number"].some(t => comp.types.includes(t))) 
               address = address ? `${address}, ${comp.long_name}` : comp.long_name;
           });
-
-          setLocation((prev) => ({
+          setLocation(prev => ({
             ...prev,
             city: city || prev.city,
             state: state || prev.state,
@@ -100,108 +80,44 @@ const AddEvent = () => {
             geo: { lat: geo.lat, lng: geo.lng },
           }));
         }
-      } catch (err) {
-        console.error("Failed to fetch location from pincode:", err);
-      }
+      } catch (err) { console.error("Failed to fetch location from pincode:", err); }
     }
   };
 
-  const handleMapClick = (e) => {
-    setLocation((prev) => ({ ...prev, geo: { lat: e.latLng.lat(), lng: e.latLng.lng() } }));
+  const handleMapClick = (e) => setLocation(prev => ({ ...prev, geo: { lat: e.latLng.lat(), lng: e.latLng.lng() } }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      Object.entries(form).forEach(([k,v]) => k==="tickets"?formData.append(k, JSON.stringify(v)):formData.append(k,v));
+      formData.append("location", JSON.stringify(location));
+      if (banner) formData.append("banner", banner);
+      gallery.forEach(file => formData.append("gallery", file));
+      await axios.post(`${backendUrl}/api/events/add-event`, formData, { withCredentials:true, headers: { "Content-Type": "multipart/form-data" }});
+      toast.success("✅ Event created successfully!");
+    } catch (err) { console.error(err); toast.error("❌ Failed to create event"); }
+    finally { setSubmitting(false); }
   };
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
-
-  try {
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("startDateTime", form.startDateTime);
-    formData.append("endDateTime", form.endDateTime);
-    formData.append("category", form.category);
-    formData.append("tickets", JSON.stringify(form.tickets));
-    formData.append("location", JSON.stringify(location));
-
-    if (banner) formData.append("banner", banner);
-    gallery.forEach((file) => formData.append("gallery", file));
-
-    const { data } = await axios.post(`${backendUrl}/api/events/add-event`, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    toast.success("✅ Event created successfully!");
-    console.log("Event created:", data);
-  } catch (err) {
-    console.error(err);
-    toast.error("❌ Failed to create event");
-  } finally {
-    setSubmitting(false);
-  }
-};
-
 
   return (
     <>
       <Navbar />
-      <main className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-6">
-        <h1 className="text-2xl font-bold mb-6">Add New Event</h1>
+      <main className="max-w-4xl mx-auto p-6 md:p-8 bg-gray-50 rounded-xl mt-6 space-y-6">
+        <h1 className="text-3xl font-bold text-indigo-700 text-center mb-4">Create New Event</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <input
-            type="text"
-            name="title"
-            placeholder="Event Title"
-            value={form.title}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-md"
-            required
-          />
-
-          {/* Description */}
-          <textarea
-            name="description"
-            placeholder="Event Description"
-            value={form.description}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-md"
-            rows={4}
-            required
-          />
-
-          {/* Dates */}
-          <div className="flex gap-4">
-            <input
-              type="datetime-local"
-              name="startDateTime"
-              value={form.startDateTime}
-              onChange={handleChange}
-              className="w-1/2 border p-2 rounded-md"
-              required
-            />
-            <input
-              type="datetime-local"
-              name="endDateTime"
-              value={form.endDateTime}
-              onChange={handleChange}
-              className="w-1/2 border p-2 rounded-md"
-              required
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block mb-1 font-semibold">Category</label>
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full border p-2 rounded-md"
-              required
-            >
+          {/* Event Info */}
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Event Details</h2>
+            <input type="text" name="title" placeholder="Event Title" value={form.title} onChange={handleChange} className="w-full border p-3 rounded-md focus:ring-2 focus:ring-indigo-400" required />
+            <textarea name="description" placeholder="Event Description" value={form.description} onChange={handleChange} className="w-full border p-3 rounded-md focus:ring-2 focus:ring-indigo-400" rows={4} required />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="datetime-local" name="startDateTime" value={form.startDateTime} onChange={handleChange} className="border p-2 rounded-md" required />
+              <input type="datetime-local" name="endDateTime" value={form.endDateTime} onChange={handleChange} className="border p-2 rounded-md" required />
+            </div>
+            <select name="category" value={form.category} onChange={handleChange} className="w-full border p-2 rounded-md" required>
               <option value="">Select Category</option>
               <option value="workshop">Workshop</option>
               <option value="concert">Concert</option>
@@ -211,124 +127,54 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Tickets */}
-          <div>
-            <h2 className="font-semibold mb-2">Tickets</h2>
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Tickets</h2>
             {form.tickets.map((ticket, i) => (
-              <div key={i} className="flex gap-2 mb-2 items-center">
-                <select
-                  value={ticket.type}
-                  onChange={(e) => handleTicketChange(i, "type", e.target.value)}
-                  className="w-1/4 border p-2 rounded-md"
-                  required
-                >
-                  <option value="">Select Type</option>
-                  <option value="General">General</option>
-                  <option value="VIP">VIP</option>
-                  <option value="Student">Student</option>
-                  <option value="Early Bird">Early Bird</option>
+              <div key={i} className="flex gap-2 flex-wrap items-center">
+                <select value={ticket.type} onChange={(e)=>handleTicketChange(i,"type",e.target.value)} className="border p-2 rounded-md" required>
+                  <option value="">Type</option><option>General</option><option>VIP</option><option>Student</option><option>Early Bird</option>
                 </select>
-                <input
-                  type="number"
-                  placeholder="Price"
-                  value={ticket.price}
-                  onChange={(e) => handleTicketChange(i, "price", e.target.value)}
-                  className="w-1/4 border p-2 rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="Currency"
-                  value={ticket.currency}
-                  onChange={(e) => handleTicketChange(i, "currency", e.target.value)}
-                  className="w-1/4 border p-2 rounded-md"
-                />
-                <input
-                  type="number"
-                  placeholder="Max Qty"
-                  value={ticket.maxQuantity}
-                  onChange={(e) => handleTicketChange(i, "maxQuantity", e.target.value)}
-                  className="w-1/4 border p-2 rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newTickets = form.tickets.filter((_, idx) => idx !== i);
-                    setForm({ ...form, tickets: newTickets });
-                  }}
-                  className="text-red-600 hover:text-red-800 ml-2"
-                  title="Delete Ticket"
-                >
-                  🗑️
-                </button>
+                <input type="number" placeholder="Price" value={ticket.price} onChange={(e)=>handleTicketChange(i,"price",e.target.value)} className="border p-2 rounded-md" />
+                <input type="text" placeholder="Currency" value={ticket.currency} onChange={(e)=>handleTicketChange(i,"currency",e.target.value)} className="border p-2 rounded-md" />
+                <input type="number" placeholder="Max Qty" value={ticket.maxQuantity} onChange={(e)=>handleTicketChange(i,"maxQuantity",e.target.value)} className="border p-2 rounded-md" />
+                <button type="button" onClick={()=>{setForm({...form,tickets: form.tickets.filter((_,idx)=>idx!==i)})}} className="text-red-600 hover:text-red-800" title="Delete Ticket">🗑️</button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addTicket}
-              className="px-3 py-1 bg-indigo-500 text-white rounded-md"
-            >
-              + Add Ticket
-            </button>
+            <button type="button" onClick={addTicket} className="px-3 py-1 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition">+ Add Ticket</button>
           </div>
 
-          {/* Banner */}
-          <div>
-            <label className="block mb-1 font-semibold">Banner</label>
-            <input type="file" accept="image/*" onChange={(e) => setBanner(e.target.files[0])} />
+          {/* Media */}
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Media</h2>
+            <div>
+              <label className="block mb-1 font-medium">Banner</label>
+              <input type="file" accept="image/*" onChange={(e)=>setBanner(e.target.files[0])} />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">Gallery</label>
+              <input type="file" accept="image/*" multiple onChange={(e)=>setGallery(Array.from(e.target.files))} />
+            </div>
           </div>
 
-          {/* Gallery */}
-          <div>
-            <label className="block mb-1 font-semibold">Gallery</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setGallery(Array.from(e.target.files))}
-            />
-          </div>
-
-          {/* Location Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["venue","address","city","state","country","pincode"].map((field) => (
-              <input
-                key={field}
-                type="text"
-                name={field}
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={location[field]}
-                onChange={handleLocationChange}
-                className="border p-2 rounded-md"
-                required={field==="venue"}
-              />
-            ))}
-          </div>
-
-          {/* Google Map */}
-          <div>
-            <label className="block mb-2 font-semibold">Pick Event Location</label>
+          {/* Location */}
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">Location</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {["venue","address","city","state","country","pincode"].map(f=>(
+                <input key={f} type="text" name={f} placeholder={f.charAt(0).toUpperCase()+f.slice(1)} value={location[f]} onChange={handleLocationChange} className="border p-2 rounded-md" required={f==="venue"} />
+              ))}
+            </div>
             {isLoaded ? (
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={location.geo}
-                zoom={12}
-                onClick={handleMapClick}
-              >
-                <Marker position={location.geo} draggable onDragEnd={handleMapClick} />
-              </GoogleMap>
-            ) : (
-              <p>Loading map...</p>
-            )}
-            <p className="text-sm text-gray-500 mt-2">
-              Lat: {location.geo.lat}, Lng: {location.geo.lng}
-            </p>
+              <div className="mt-2 rounded-lg overflow-hidden shadow-md border">
+                <GoogleMap mapContainerStyle={containerStyle} center={location.geo} zoom={12} onClick={handleMapClick}>
+                  <Marker position={location.geo} draggable onDragEnd={handleMapClick} />
+                </GoogleMap>
+                <p className="text-sm text-gray-500 mt-2">Lat: {location.geo.lat}, Lng: {location.geo.lng}</p>
+              </div>
+            ) : <p>Loading map...</p>}
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-4 py-2 bg-green-600 text-white rounded-md"
-          >
+          <button type="submit" disabled={submitting} className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition">
             {submitting ? "Submitting..." : "Create Event"}
           </button>
         </form>

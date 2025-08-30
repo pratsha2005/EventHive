@@ -7,7 +7,6 @@ import Register from './pages/auth/Register'
 import EmailVerify from './pages/auth/EmailVerify'
 import ResetPassword from './pages/auth/ResetPassword'
 import LandingPage from './pages/Landing'
-import Organiser from './pages/user/Organiser'
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import MyBookings from './pages/MyBookings';
@@ -28,10 +27,8 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/email-verify" element={<EmailVerify />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
         <Route path="/my-bookings" element={<MyBookings/>} />
         <Route path="/events" element={<Events/>} />
-        <Route path="/organise" element={<Organiser/>} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path='/my-bookings' element={<MyBookings/>}/>
         <Route path='/create-event' element={<AddEvent/>}/>

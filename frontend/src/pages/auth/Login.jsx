@@ -26,34 +26,42 @@ const Login = () => {
     }
   }, []);
 
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const { data } = await axios.post(`${backendUrl}/api/auth/login`, {
-        email,
-        password,
-      });
-      if (data.success) {
-        setIsLoggedin(true);
-        getUserData();
-        localStorage.setItem("isLoggedin", "true");
-        toast.success(data.message);
+const onSubmitHandler = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  try {
+    const { data } = await axios.post(`${backendUrl}/api/auth/login`, {
+      email,
+      password,
+    });
 
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", email);
-        } else {
-          localStorage.removeItem("rememberedEmail");
-        }
-        navigate("/"); 
+    if (data.success) {
+      setIsLoggedin(true);
+      getUserData();
+      localStorage.setItem("isLoggedin", "true");
+      toast.success(data.message);
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
       } else {
-        toast.error(data.message);
+        localStorage.removeItem("rememberedEmail");
       }
-    } catch (error) {
-      toast.error(error.message);
+
+      navigate("/");
+    } else {
+      toast.error(data.message || "Login failed");
     }
-    setIsLoading(false);
-  };
+  } catch (error) {
+    // ✅ Use backend error message if available
+    if (error.response && error.response.data) {
+      toast.error(error.response.data.message || "Something went wrong");
+    } else {
+      toast.error(error.message || "Something went wrong");
+    }
+    console.error("Login error:", error);
+  }
+  setIsLoading(false);
+};
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
