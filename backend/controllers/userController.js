@@ -75,20 +75,35 @@ const registerForEvent = async (req, res) => {
       eventId,
       tickets: [],
       eventName: event.title,
-      eventDate: event.date,
-      venue: event.venue,
+      eventDate: event.startDateTime,
+      venue: event.location?.venue || "",
     };
 
     // Validate attendees and ticket availability
     for (const attendeeData of attendees) {
-      const ticketInfo = event.tickets.id(attendeeData.ticketId);
-      if (!ticketInfo) return res.status(400).json({ message: `Invalid ticket for ${attendeeData.name}` });
-      if (ticketInfo.soldCount >= ticketInfo.maxQuantity) return res.status(400).json({ message: `Ticket ${ticketInfo.type} sold out` });
+      // 🔹 Find ticket by type (instead of ticketId)
+      const ticketInfo = event.tickets.find(
+        (t) => t.type.toLowerCase() === attendeeData.ticketType.toLowerCase()
+      );
 
+      if (!ticketInfo) {
+        return res.status(400).json({
+          message: `Invalid ticket type "${attendeeData.ticketType}" for ${attendeeData.name}`,
+        });
+      }
+
+      if (ticketInfo.soldCount >= ticketInfo.maxQuantity) {
+        return res.status(400).json({
+          message: `Ticket ${ticketInfo.type} sold out`,
+        });
+      }
+
+      // Update sold count
       ticketInfo.soldCount += 1;
 
       booking.tickets.push({ type: ticketInfo.type });
 
+      // Save attendee
       const attendee = await Attendee.create({
         eventId,
         name: attendeeData.name,
@@ -101,12 +116,13 @@ const registerForEvent = async (req, res) => {
         },
         status: "booked",
       });
+
       createdAttendees.push(attendee);
     }
 
     await event.save();
 
-    // Generate tickets and send QR emails
+    // Generate tickets + QR codes
     const createdTickets = await createTicketsForBooking(booking, user);
 
     res.status(201).json({
@@ -114,12 +130,12 @@ const registerForEvent = async (req, res) => {
       attendees: createdAttendees,
       tickets: createdTickets,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
 export {
     getAllEvents,
     registerForEvent
