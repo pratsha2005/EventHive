@@ -9,6 +9,11 @@ const addEvent = async(req, res) => {
     try {
         const formData = req.body
         formData.organizerId = req.userId
+
+        if(formData.tickets){
+          formData.tickets = JSON.parse(formData.tickets)
+        }
+
         // Handle uploaded photos from multer
         let bannerUrl;
         let galleryUrls = [];
@@ -34,7 +39,7 @@ const addEvent = async(req, res) => {
 
 
         const newEvent = await Event.create(
-            formData
+          formData
         )
 
         const createdEvent = await Event.findById(newEvent._id);
