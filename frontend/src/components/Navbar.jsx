@@ -10,7 +10,7 @@ import {
   FiBarChart2,
   FiSettings,
   FiPlusCircle,
-  FiUsers
+  FiUsers,
 } from "react-icons/fi";
 import { FaTicketAlt } from "react-icons/fa";
 
@@ -151,6 +151,17 @@ const Navbar = () => {
                           <FiUser size={16} className="mr-2" />
                           Profile
                         </Link>
+
+                        {/* 🔹 My Bookings */}
+                        <Link
+                          to="/my-bookings"
+                          onClick={() => setShowDropdown(false)}
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
+                          <FaTicketAlt size={16} className="mr-2" />
+                          My Bookings
+                        </Link>
+
                         <button
                           onClick={handleLogout}
                           className="w-full flex items-center px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
@@ -236,6 +247,17 @@ const Navbar = () => {
                       <FiUser size={16} className="mr-2" />
                       Profile
                     </Link>
+
+                    {/* 🔹 My Bookings (Mobile) */}
+                    <Link
+                      to="/my-bookings"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                    >
+                      <FaTicketAlt size={16} className="mr-2" />
+                      My Bookings
+                    </Link>
+
                     <button
                       onClick={() => {
                         handleLogout();
