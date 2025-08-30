@@ -3,91 +3,65 @@ import { FaHeart, FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
+    <footer className="bg-blue-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">EH</span>
-              </div>
-              <span className="text-xl font-bold">EventHive</span>
+        {/* Branding & Socials */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">EH</span>
             </div>
-            <p className="text-blue-200 mb-6 max-w-md">
-              Building beautiful, modern web experiences with cutting-edge
-              technology and thoughtful design.
-            </p>
-            <div className="flex space-x-4">
-              <a
-                href="#"
-                className="text-blue-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-blue-800/30"
-              >
-                <FaGithub size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-blue-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-blue-800/30"
-              >
-                <FaTwitter size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-blue-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-blue-800/30"
-              >
-                <FaLinkedin size={20} />
-              </a>
-            </div>
+            <span className="text-xl font-bold">EventHive</span>
           </div>
 
-          
+          <div className="flex space-x-4">
+            {[FaGithub, FaTwitter, FaLinkedin].map((Icon, idx) => (
+              <a
+                key={idx}
+                href="#"
+                className="text-blue-300 hover:text-white p-2 rounded-lg hover:bg-blue-800/30 transition"
+              >
+                <Icon size={20} />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Links */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
-            <h3 className="font-semibold mb-4 text-blue-100">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-2 text-blue-200">Quick Links</h3>
+            <ul className="space-y-1">
               {["Home", "Dashboard", "Profile", "Filters"].map((link) => (
                 <li key={link}>
-                  <a
-                    href="#"
-                    className="text-blue-200 hover:text-white transition-colors"
-                  >
+                  <a href="#" className="text-blue-300 hover:text-white">
                     {link}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
-
-         
           <div>
-            <h3 className="font-semibold mb-4 text-blue-100">Support</h3>
-            <ul className="space-y-2">
-              {[
-                "Help Center",
-                "Contact Us",
-                "Privacy Policy",
-                "Terms of Service",
-              ].map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="text-blue-200 hover:text-white transition-colors"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
+            <h3 className="font-semibold mb-2 text-blue-200">Support</h3>
+            <ul className="space-y-1">
+              {["Help Center", "Contact Us", "Privacy Policy", "Terms of Service"].map(
+                (link) => (
+                  <li key={link}>
+                    <a href="#" className="text-blue-300 hover:text-white">
+                      {link}
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </div>
         </div>
 
-        
-        <div className="border-t border-blue-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
-          <p className="text-blue-200 text-sm">
-            © 2025 EventHive. All rights reserved.
-          </p>
-          <p className="text-blue-200 text-sm flex items-center mt-2 sm:mt-0">
-            Made with <FaHeart size={14} className="mx-1 text-red-400" /> by
-            EventHive Team
+        {/* Footer bottom */}
+        <div className="mt-8 border-t border-blue-800 pt-4 text-sm text-blue-200 flex flex-col sm:flex-row justify-between items-center">
+          <p>© 2025 EventHive. All rights reserved.</p>
+          <p className="flex items-center mt-2 sm:mt-0">
+            Made with <FaHeart size={14} className="mx-1 text-red-400" /> by EventHive Team
           </p>
         </div>
       </div>

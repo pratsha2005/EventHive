@@ -31,12 +31,10 @@ const Navbar = () => {
   
   const publicNav = [
     { name: "Home", href: "/", icon: FiHome },
-    { name: "Explore Events", href: "/events", icon: FiCalendar },
   ];
 
   const attendeeNav = [
     { name: "Home", href: "/", icon: FiHome },
-    { name: "My Bookings", href: "/my-bookings", icon: FaTicketAlt },
     { name: "Explore Events", href: "/events", icon: FiCalendar },
   ];
 

@@ -38,11 +38,8 @@ const eventSchema = mongoose.Schema(
     status: {
       type: String,
       enum: ["draft", "published", "cancelled"],
-      default: "draft",
+      default: "published",
     },
-
-    // isFeatured: { type: Boolean, default: false },
-    // isTrending: { type: Boolean, default: false },
 
     tickets: [
       {
