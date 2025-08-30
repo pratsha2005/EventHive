@@ -34,6 +34,7 @@ const MyEvents = () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/events/getAllEventByManagerId`);
       setEvents(data.data);
+      console.log("Fetched organiser events:", data.data);
     } catch (err) {
       console.error("Error fetching organiser events:", err);
     }

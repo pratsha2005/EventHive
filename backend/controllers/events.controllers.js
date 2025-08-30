@@ -35,22 +35,22 @@ const deleteEvent = async(req, res) => {
 
 
 
-
 const addEvent = async(req, res) => {
   try {
-      const formData = req.body
-      formData.organizerId = req.userId
+      const formData = req.body;
+      formData.organizerId = req.userId;
 
-      if(formData.tickets){
-        formData.tickets = JSON.parse(formData.tickets)
-      }
+      // Parse tickets and location
+      if(formData.tickets) formData.tickets = JSON.parse(formData.tickets);
+      if(formData.location) formData.location = JSON.parse(formData.location);
 
-      if (formData.location) {
-        try {
-          formData.location = JSON.parse(formData.location)
-        } catch (err) {
-          console.error("Failed to parse location:", err)
-        }
+      // Parse socialLinks if present
+      if(formData.socialLinks && typeof formData.socialLinks === "string") {
+          try {
+              formData.socialLinks = JSON.parse(formData.socialLinks);
+          } catch(err) {
+              console.error("Failed to parse socialLinks:", err);
+          }
       }
 
       // Handle uploaded photos from multer
@@ -58,48 +58,39 @@ const addEvent = async(req, res) => {
       let galleryUrls = [];
 
       if (req.files) {
-          if (req.files.banner && req.files.banner.length > 0) {
+          if (req.files.banner?.length > 0) {
               const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
               bannerUrl = bannerUpload.secure_url;
           }
 
-          if (req.files.gallery && req.files.gallery.length > 0) {
+          if (req.files.gallery?.length > 0) {
               const galleryUploads = await Promise.all(
-              req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
+                req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
               );
               galleryUrls = galleryUploads.map((p) => p.secure_url);
           }
       }
 
-      formData.media = {
-          bannerUrl,
-          gallery: galleryUrls,
+      formData.media = { 
+        bannerUrl, 
+        gallery: galleryUrls, 
+        streamingLink: formData.streamingLink || "" // <-- add this line
       };
-
+      
       const newEvent = await Event.create(formData);
-
-      const createdEvent = await Event.findById(newEvent._id);
-
-      if(!createdEvent){
-          return res.status(400).json({
-              success: false,
-              message: "Something went wrong in creating the event"
-          })
-      }
 
       return res.status(200).json({
           success: true,
           message: "Event created successfully",
-          data: createdEvent
-      })
+          data: newEvent
+      });
 
   } catch (error) {
-      console.log(error)
-      return res.status(400).json({
-          success: false, message: error.message 
-      });
+      console.log(error);
+      return res.status(400).json({ success: false, message: error.message });
   }
-}
+};
+
 
 const editEvent = async (req, res) => {
   try {
@@ -119,6 +110,18 @@ const editEvent = async (req, res) => {
         req.body.tickets = [];
       }
     }
+    if (req.body["media.streamingLink"]) {
+      eventToBeEdited.media.streamingLink = req.body["media.streamingLink"];
+    }
+
+    if (req.body.socialLinks && typeof req.body.socialLinks === "string") {
+        try {
+            req.body.socialLinks = JSON.parse(req.body.socialLinks);
+        } catch(err) {
+            console.error("Failed to parse socialLinks:", err);
+        }
+    }
+
 
     if (req.body.location && typeof req.body.location === "string") {
       try {

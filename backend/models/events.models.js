@@ -62,15 +62,15 @@ const eventSchema = mongoose.Schema(
     media: {
       bannerUrl: { type: String },
       gallery: [{ type: String }],
-    //   streamingLink: { type: String },
+      streamingLink: { type: String },
     },
 
-    // socialLinks: {
-    //   facebook: { type: String },
-    //   instagram: { type: String },
-    //   twitter: { type: String },
-    //   whatsapp: { type: String },
-    // },
+    socialLinks: {
+      facebook: { type: String },
+      instagram: { type: String },
+      twitter: { type: String },
+      whatsapp: { type: String },
+    },
   },
   { timestamps: true }
 );

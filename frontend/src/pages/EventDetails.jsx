@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar.jsx";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
 import { toast } from "react-toastify";
+import { FaFacebook, FaInstagram, FaTwitter, FaWhatsapp, FaLink } from "react-icons/fa";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -14,14 +15,13 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
-const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "", price: 0}]);
+  const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "", price: 0 }]);
 
   axios.defaults.withCredentials = true;
 
   const fetchEvent = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/events/getEventById/${id}`);
-      console.log("Event API response:", data);
       setEvent(data.data);
     } catch (err) {
       console.error("Error fetching event:", err);
@@ -38,23 +38,20 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
   const addAttendee = () => setAttendees([...attendees, { name: "", email: "", ticketType: "" }]);
   const removeAttendee = (index) => setAttendees(attendees.filter((_, i) => i !== index));
   const updateAttendee = (index, field, value) => {
-  const updated = [...attendees];
-
-  if (field === "ticketType") {
-    const ticket = event.tickets.find((t) => t.type === value);
-    updated[index].ticketType = value;
-    updated[index].price = ticket ? ticket.price : 0;
-  } else {
-    updated[index][field] = value;
-  }
-
-  setAttendees(updated);
-};
+    const updated = [...attendees];
+    if (field === "ticketType") {
+      const ticket = event.tickets.find((t) => t.type === value);
+      updated[index].ticketType = value;
+      updated[index].price = ticket ? ticket.price : 0;
+    } else {
+      updated[index][field] = value;
+    }
+    setAttendees(updated);
+  };
 
   const handleRegister = async () => {
     setRegistering(true);
     try {
-      console.log(attendees)
       const response = await axios.post(`${backendUrl}/api/payment/checkout`, {
         eventId: id,
         attendees,
@@ -73,31 +70,30 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
   return (
     <>
       <Navbar />
-      <main className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-lg mt-6">
+      <main className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-lg mt-6 space-y-6">
         {/* Banner */}
         <img
-        src={event.media?.bannerUrl || "https://via.placeholder.com/800x400"}
-        alt={event.title}
-        className="w-full h-80 object-cover rounded-xl mb-6 shadow-md"
+          src={event.media?.bannerUrl || "https://via.placeholder.com/800x400"}
+          alt={event.title}
+          className="w-full h-80 object-cover rounded-xl mb-6 shadow-md"
         />
 
         {/* Gallery */}
         {event.media?.gallery?.length > 0 && (
-        <div className="mb-6">
+          <div className="mb-6">
             <h2 className="text-xl font-semibold mb-3 text-gray-800">Gallery</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {event.media.gallery.map((img, i) => (
+              {event.media.gallery.map((img, i) => (
                 <img
-                key={i}
-                src={img}
-                alt={`Gallery ${i + 1}`}
-                className="w-full h-40 object-cover rounded-lg shadow-sm hover:scale-105 transition-transform duration-200 cursor-pointer"
+                  key={i}
+                  src={img}
+                  alt={`Gallery ${i + 1}`}
+                  className="w-full h-40 object-cover rounded-lg shadow-sm hover:scale-105 transition-transform duration-200 cursor-pointer"
                 />
-            ))}
+              ))}
             </div>
-        </div>
+          </div>
         )}
-
 
         {/* Event Title & Description */}
         <h1 className="text-3xl font-bold text-gray-800 mb-4">{event.title}</h1>
@@ -111,6 +107,38 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
             <p><strong>Start:</strong> {new Date(event.startDateTime).toLocaleString()}</p>
             <p><strong>End:</strong> {new Date(event.endDateTime).toLocaleString()}</p>
             <p><strong>Status:</strong> {event.status}</p>
+            {event.media?.streamingLink && (
+              <p className="flex items-center gap-2">
+                <FaLink /> 
+                <a href={event.media?.streamingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  Streaming Link
+                </a>
+              </p>
+            )}
+            {event.socialLinks && (
+              <div className="flex gap-4 mt-2">
+                {event.socialLinks.facebook && (
+                  <a href={event.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-xl">
+                    <FaFacebook />
+                  </a>
+                )}
+                {event.socialLinks.instagram && (
+                  <a href={event.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-500 text-xl">
+                    <FaInstagram />
+                  </a>
+                )}
+                {event.socialLinks.twitter && (
+                  <a href={event.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xl">
+                    <FaTwitter />
+                  </a>
+                )}
+                {event.socialLinks.whatsapp && (
+                  <a href={event.socialLinks.whatsapp} target="_blank" rel="noopener noreferrer" className="text-green-500 text-xl">
+                    <FaWhatsapp />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -121,7 +149,7 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Ticket Booking / Attendees */}
         {event.tickets?.length > 0 && (
           <div className="mt-8">
             {userData?.role === "organizer" ? (
@@ -184,7 +212,6 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
                     )}
                   </div>
                 ))}
-
                 <button
                   type="button"
                   onClick={addAttendee}
@@ -192,7 +219,6 @@ const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "
                 >
                   + Add Another Attendee
                 </button>
-
                 <div className="text-center mt-6">
                   <button
                     onClick={handleRegister}
