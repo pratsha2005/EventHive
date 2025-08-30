@@ -1,14 +1,14 @@
 import { Event } from "../models/events.models.js";
 import { Attendee } from "../models/attendee.model.js";
 import Papa from "papaparse";
-import { uploadToCloudinary } from "../config/cloudinary.js";
+import { uploadToCloudinary } from "../config/cloudigit pnary.js";
 
 
 
 const addEvent = async(req, res) => {
     try {
         const formData = req.body
-        formData.organizerId = req.user._id
+        formData.organizerId = req.userId
         // Handle uploaded photos from multer
         let bannerUrl;
         let galleryUrls = [];
