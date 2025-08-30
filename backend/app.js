@@ -7,6 +7,7 @@ import connectDB from './db/index.js';
 import {connectCloudinary} from './config/cloudinary.js';
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import eventRouter from './routes/event.routes.js'
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -42,5 +43,6 @@ app.use(
 // API Endpoints
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
+app.use('/api/events', eventRouter)
 
 app.listen(port, () => console.log(`Server started on PORT: ${port}`));
