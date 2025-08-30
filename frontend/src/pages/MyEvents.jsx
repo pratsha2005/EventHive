@@ -42,16 +42,17 @@ const MyEvents = () => {
     }
   }, [userData, backendUrl]);
 
-  const confirmDelete = async () => {
-    if (deleteModal.input !== "DELETE") return alert("Type DELETE to confirm deletion.");
-    try {
-      await axios.delete(`${backendUrl}/api/events/delete/${deleteModal.eventId}`);
-      setEvents(events.filter(ev => ev._id !== deleteModal.eventId));
-      setDeleteModal({ show: false, eventId: null, input: "" });
-    } catch (err) {
-      console.error("Failed to delete event:", err);
-    }
-  };
+const confirmDelete = async () => {
+  if (deleteModal.input !== "DELETE") return alert("Type DELETE to confirm deletion.");
+  try {
+    await axios.post(`${backendUrl}/api/events/deleteEvent/${deleteModal.eventId}`);
+    
+    setEvents(events.filter(ev => ev._id !== deleteModal.eventId));
+    setDeleteModal({ show: false, eventId: null, input: "" });
+  } catch (err) {
+    console.error("Failed to delete event:", err);
+  }
+};
 
   // Filtering
   const filtered = events.filter((ev) => {

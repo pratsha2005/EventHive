@@ -16,6 +16,7 @@ const MyBookings = () => {
       const { data } = await axios.get(`${backendUrl}/api/user/myBookings`, {
         withCredentials: true,
       });
+      console.log("Bookings API response:", data);
       setBookings(data.data || []);
     } catch (err) {
       console.error("Error fetching bookings:", err);

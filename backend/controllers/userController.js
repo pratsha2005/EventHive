@@ -124,35 +124,49 @@ const getMyBookings = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Get user to verify existence (optional if you trust userId)
+    // Verify user existence
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Find all tickets for the user
-    const myTickets = await Ticket.find({ userId })
-      .populate("eventId")   // populate event details
+    // Find all tickets for the user and populate event details
+    const myTickets = await Ticket.find({ userId }).populate("eventId");
 
-    // Format response
-    const bookings = myTickets.map(ticket => ({
-      ticketId: ticket._id,
-      ticketType: ticket.ticketType,
-      qrCode: ticket.qrCode,
-      barcode: ticket.barcode,
-      status: ticket.status,
-      delivery: ticket.delivery,
-      event: {
-        id: ticket.eventId._id,
-        title: ticket.eventId.title,
-        date: ticket.eventId.date,
-        startDateTime: ticket.eventId.startDateTime,
-        endDateTime: ticket.eventId.endDateTime,
-        venue: ticket.eventId.venue,
-        location: ticket.eventId.location,
-        image: ticket.eventId.image,
-        category: ticket.eventId.category,
-      },
-      
-    }));
+    // Format response safely
+    const bookings = myTickets.map((ticket) => {
+      const event = ticket.eventId;
+
+      return {
+        ticketId: ticket.ticketId,
+        ticketType: ticket.ticketType,
+        qrCode: ticket.qrCode,
+        barcode: ticket.barcode,
+        status: ticket.status,
+        delivery: ticket.delivery,
+        event: event
+          ? {
+              id: event._id,
+              title: event.title,
+              date: event.date,
+              startDateTime: event.startDateTime,
+              endDateTime: event.endDateTime,
+              venue: event.venue,
+              location: event.location,
+              image: event.image,
+              category: event.category,
+            }
+          : {
+              id: null,
+              title: "Event Deleted",
+              date: null,
+              startDateTime: null,
+              endDateTime: null,
+              venue: null,
+              location: null,
+              image: null,
+              category: null,
+            },
+      };
+    });
 
     res.status(200).json({
       message: "My bookings fetched successfully",
@@ -163,6 +177,7 @@ const getMyBookings = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
 
  const updateProfile = async (req, res) => {
   try {

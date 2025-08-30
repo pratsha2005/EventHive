@@ -9,7 +9,7 @@ import { FiArrowLeft, FiSearch, FiDownload } from "react-icons/fi";
 const AttendeeDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { backendUrl, userData } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
 
   const [event, setEvent] = useState(null);
   const [attendees, setAttendees] = useState([]);
@@ -17,8 +17,6 @@ const AttendeeDetails = () => {
   const [error, setError] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterGender, setFilterGender] = useState("all");
-  const [filterAttended, setFilterAttended] = useState("all");
 
   axios.defaults.withCredentials = true;
 
@@ -29,16 +27,24 @@ const AttendeeDetails = () => {
 
       const { data } = await axios.get(
         `${backendUrl}/api/events/getAttendeesByEventId/${id}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
+      console.log("Attendees API response:", data);
 
-      if (!data.success) throw new Error(data.message || "Failed to fetch attendees");
+      if (!data.success)
+        throw new Error(data.message || "Failed to fetch attendees");
 
       setEvent({ id, name: data.eventName || "Event" });
       setAttendees(data.data || []);
     } catch (err) {
       console.error("Error fetching attendees:", err);
-      setError(err.response?.data?.message || err.message || "Failed to fetch attendees");
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch attendees"
+      );
       toast.error(err.response?.data?.message || "Failed to fetch attendees");
     } finally {
       setLoading(false);
@@ -50,28 +56,37 @@ const AttendeeDetails = () => {
   }, [id]);
 
   // Filtered attendees
-  const filteredAttendees = attendees.filter((attendee) => {
-    const matchesSearch =
+  const filteredAttendees = attendees.filter(
+    (attendee) =>
       attendee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      attendee.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGender = filterGender === "all" || attendee.gender === filterGender;
-    const matchesAttended =
-      filterAttended === "all" ||
-      (filterAttended === "yes" && attendee.attended) ||
-      (filterAttended === "no" && !attendee.attended);
-    return matchesSearch && matchesGender && matchesAttended;
-  });
+      attendee.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Total revenue calculation
+  const totalRevenue = filteredAttendees.reduce(
+    (sum, attendee) => sum + (attendee.ticket?.price || 0),
+    0
+  );
 
   // CSV Download
   const handleDownloadCSV = () => {
-    const headers = ["Name", "Email", "Phone", "Gender", "Attended", "Guests"];
+    const headers = [
+      "Name",
+      "Email",
+      "Ticket Type",
+      "Price",
+      "Currency",
+      "Status",
+      "Registered At",
+    ];
     const rows = filteredAttendees.map((a) => [
       a.name,
       a.email,
-      a.phone || "",
-      a.gender || "",
-      a.attended ? "Yes" : "No",
-      a.guests ? a.guests.map((g) => g.name).join("; ") : "",
+      a.ticket?.type || "",
+      a.ticket?.price || "",
+      a.ticket?.currency || "",
+      a.status,
+      new Date(a.registeredAt).toLocaleString(),
     ]);
 
     const csvContent =
@@ -112,55 +127,40 @@ const AttendeeDetails = () => {
             </button>
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800 mb-1">Attendees Details</h1>
-                <p className="text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-800 mb-1">
+                  Attendees Details
+                </h1>
+                <p className="text-gray-500 mb-2">
                   {event.name} – {filteredAttendees.length} Attendees
                 </p>
+
+                {/* Total Revenue */}
+                <div className="inline-block bg-green-100 text-green-800 font-bold text-xl px-4 py-2 rounded-lg shadow-md">
+                  Total Revenue: ₹{totalRevenue}
+                </div>
               </div>
+
               <button
                 onClick={handleDownloadCSV}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 mt-4 md:mt-0"
               >
                 <FiDownload />
                 Download CSV
               </button>
             </div>
 
-            {/* Filters */}
-            <div className="grid md:grid-cols-3 gap-4 mb-6">
-              <select
-                value={filterGender}
-                onChange={(e) => setFilterGender(e.target.value)}
-                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">All Genders</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-
-              <select
-                value={filterAttended}
-                onChange={(e) => setFilterAttended(e.target.value)}
-                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">All</option>
-                <option value="yes">Attended</option>
-                <option value="no">Not Attended</option>
-              </select>
-
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Search attendees..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+            {/* Search */}
+            <div className="relative mb-6">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Search attendees..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
 
             {/* Table */}
@@ -170,47 +170,53 @@ const AttendeeDetails = () => {
                   <tr className="border-b border-gray-200 text-gray-600">
                     <th className="py-3 px-4">#</th>
                     <th className="py-3 px-4">Name</th>
-                    <th className="py-3 px-4">Total Guests</th>
                     <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Phone</th>
-                    <th className="py-3 px-4">Gender</th>
+                    <th className="py-3 px-4">Ticket Type</th>
+                    <th className="py-3 px-4">Price</th>
+                    <th className="py-3 px-4">Currency</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Registered At</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredAttendees.length > 0 ? (
                     filteredAttendees.map((attendee, index) => (
                       <tr
-                        key={attendee._id || index}
+                        key={attendee.id}
                         className="border-b border-gray-100 hover:bg-gray-50 transition"
                       >
-                        <td className="py-3 px-4 font-medium text-gray-700">{index + 1}.</td>
+                        <td className="py-3 px-4 font-medium text-gray-700">
+                          {index + 1}.
+                        </td>
                         <td className="py-3 px-4 text-gray-800">
                           {attendee.name}
-                          {attendee.guests?.map((g, i) => (
-                            <div key={i} className="text-sm text-gray-500 ml-4 flex flex-col">
-                              {g.name}
-                            </div>
-                          ))}
-                        </td>
-                        <td className="py-3 px-4 text-gray-700">{attendee.guests?.length || 0}</td>
-                        <td className="py-3 px-4 text-gray-700">
-                          <div>{attendee.email}</div>
-                          {attendee.guests?.map((g, i) => (
-                            <div key={i} className="text-sm text-gray-500 ml-4">{g.email}</div>
-                          ))}
                         </td>
                         <td className="py-3 px-4 text-gray-700">
-                          <div>{attendee.phone}</div>
-                          {attendee.guests?.map((g, i) => (
-                            <div key={i} className="text-sm text-gray-500 ml-4">{g.phone}</div>
-                          ))}
+                          {attendee.email}
                         </td>
-                        <td className="py-3 px-4 capitalize text-gray-700">{attendee.gender}</td>
+                        <td className="py-3 px-4 text-gray-700">
+                          {attendee.ticket?.type || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-gray-700">
+                          {attendee.ticket?.price || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-gray-700">
+                          {attendee.ticket?.currency || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-gray-700 capitalize">
+                          {attendee.status}
+                        </td>
+                        <td className="py-3 px-4 text-gray-700">
+                          {new Date(attendee.registeredAt).toLocaleString()}
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="py-6 text-center text-gray-500 italic">
+                      <td
+                        colSpan="8"
+                        className="py-6 text-center text-gray-500 italic"
+                      >
                         No attendees found.
                       </td>
                     </tr>

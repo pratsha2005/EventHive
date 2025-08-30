@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { backendUrl, isLoggedin, userData } = useContext(AppContext);
+  const { backendUrl, userData } = useContext(AppContext);
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);

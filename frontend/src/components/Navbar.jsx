@@ -41,7 +41,6 @@ const Navbar = () => {
   const organizerNav = [
     { name: "Home", href: "/", icon: FiHome },
     { name: "Create Event", href: "/create-event", icon: FiPlusCircle },
-    // { name: "Analytics", href: "/organiser-analytics", icon: FiBarChart2 },
   ];
 
   const adminNav = [
@@ -70,14 +69,16 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
-          <div className="flex items-center">
+          <div className="flex items-center rounded-2xl">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">EH</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                EventHive
-              </span>
+            <div className="inline-flex items-center  gap-2">
+              {/* Logo */}
+              <img
+                src="/logo.jpg" 
+                alt="EventHive Logo"
+                className="w-30 h-30 object-contain"
+              />
+            </div>
             </Link>
           </div>
 
