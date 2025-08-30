@@ -16,6 +16,7 @@ router.post(
     { name: "banner", maxCount: 1 },
     { name: "gallery", maxCount: 10 }
   ]),
+  userAuth,
   addEvent
 );
 
