@@ -82,7 +82,7 @@ export const getWelcomeEmailTemplate = (name, email) => {
                     <tr>
                         <td align="center" style="background-color: #2d3748; padding: 30px 20px; color: #a0aec0;">
                             <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.4;">
-                                Crafted with ❤️ by <strong style="color: #667eea;">Arman Redhu</strong>
+                                Crafted with ❤️ by <strong style="color: #667eea;">EventHive</strong>
                             </p>
                             <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.4;">
                                 © ${currentYear} MERN Authentication System. All rights reserved.
@@ -172,7 +172,7 @@ export const getVerificationEmailTemplate = (otp) => {
                     <tr>
                         <td align="center" style="background-color: #2d3748; padding: 30px 20px; color: #a0aec0;">
                             <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.4;">
-                                Built with ❤️ by <strong style="color: #f093fb;">Arman Redhu</strong>
+                                Built with ❤️ by <strong style="color: #f093fb;">EventHive</strong>
                             </p>
                             <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.4;">
                                 © ${currentYear} MERN Authentication System. All rights reserved.
@@ -265,7 +265,7 @@ export const getPasswordResetEmailTemplate = (otp) => {
                     <tr>
                         <td align="center" style="background-color: #2d3748; padding: 30px 20px; color: #a0aec0;">
                             <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.4;">
-                                Built with ❤️ by <strong style="color: #ff6b6b;">Arman Redhu</strong>
+                                Built with ❤️ by <strong style="color: #ff6b6b;">EventHive</strong>
                             </p>
                             <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.4;">
                                 © ${currentYear} MERN Authentication System. All rights reserved.

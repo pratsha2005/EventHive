@@ -19,21 +19,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const ROLE_OPTIONS = [
-  {
-    value: "attendee",
-    label: "Attendee",
-    icon: <FaShieldAlt style={{ color: "#22c55e", marginRight: 9 }} />,
-  },
-  {
-    value: "organizer",
-    label: "Organizer",
-    icon: <FaUsers style={{ color: "#7c3aed", marginRight: 9 }} />,
-  },
-  // {
-  //   value: "admin",
-  //   label: "Administrator",
-  //   icon: <FaCrown style={{ color: "#1e40af", marginRight: 9 }} />,
-  // },
+  { value: "attendee", label: "Attendee", icon: <FaShieldAlt style={{ color: "#22c55e", marginRight: 9 }} /> },
+  { value: "organizer", label: "Organizer", icon: <FaUsers style={{ color: "#7c3aed", marginRight: 9 }} /> },
+  // { value: "admin", label: "Administrator", icon: <FaCrown style={{ color: "#1e40af", marginRight: 9 }} /> },
 ];
 
 const customStyles = {
@@ -86,10 +74,10 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     referralCode: "",
-    role: ROLE_OPTIONS[0] || null, 
+    role: ROLE_OPTIONS[0] || null, // ✅ fixed default role
+    avatar: null,
   });
 
-  const [agreementChecked, setAgreementChecked] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -128,7 +116,6 @@ const Register = () => {
 
     setFormData((prev) => ({ ...prev, avatar: file }));
 
-    // ✅ properly reset input
     if (fileInputRef.current) fileInputRef.current.value = null;
 
     const reader = new FileReader();

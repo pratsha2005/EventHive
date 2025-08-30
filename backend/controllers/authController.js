@@ -9,11 +9,9 @@ import {
 } from "../config/emailTemplates.js";
 import { v2 as cloudinary } from "cloudinary";
 
-// Helper: Generate referral code
 const generateReferralCode = (name) =>
   name.substring(0, 4).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
 
-// ------------------ REGISTER ------------------
 export const register = async (req, res) => {
   try {
     const { name, email, phone, password, role, referredBy } = req.body;
@@ -42,14 +40,11 @@ export const register = async (req, res) => {
       avatarUrl = imageUpload.secure_url;
     }
 
-    // Generate referral code for new user
     const referralCode = generateReferralCode(name);
 
-    // Base reward values (can move to config/env)
     const SIGNUP_BONUS = 50;
     const REFERRAL_BONUS = 100;
 
-    // Create new user
     const newUser = new User({
       name,
       email,
@@ -59,10 +54,9 @@ export const register = async (req, res) => {
       avatar: avatarUrl,
       referralCode,
       referredBy: referredBy || null,
-      loyaltyPoints: SIGNUP_BONUS, // signup bonus
+      loyaltyPoints: SIGNUP_BONUS, 
     });
 
-    // If user signed up with a referral
     if (referredBy) {
       const referrer = await User.findOne({ referralCode: referredBy });
       if (referrer) {
@@ -82,10 +76,9 @@ export const register = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000, 
     });
 
-    // Send Welcome Email
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email,
@@ -113,7 +106,7 @@ export const register = async (req, res) => {
   }
 };
 
-// ------------------ LOGIN ------------------
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -168,7 +161,7 @@ export const login = async (req, res) => {
   }
 };
 
-// ------------------ LOGOUT ------------------
+
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {
@@ -183,7 +176,7 @@ export const logout = async (req, res) => {
   }
 };
 
-// ------------------ SEND VERIFY OTP ------------------
+
 export const sendVerifyOtp = async (req, res) => {
   try {
     const userId = req.userId;
@@ -218,7 +211,7 @@ export const sendVerifyOtp = async (req, res) => {
   }
 };
 
-// ------------------ VERIFY EMAIL ------------------
+
 export const verifyEmail = async (req, res) => {
   const { otp } = req.body;
   if (!otp) {
@@ -258,7 +251,7 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-// ------------------ CHECK AUTH ------------------
+
 export const isAuthenticated = (req, res) => {
   try {
     return res.status(200).json({ success: true, message: "User is authenticated" });
@@ -267,7 +260,7 @@ export const isAuthenticated = (req, res) => {
   }
 };
 
-// ------------------ SEND RESET OTP ------------------
+
 export const sendResetOtp = async (req, res) => {
   const { email } = req.body;
   if (!email)
@@ -300,7 +293,6 @@ export const sendResetOtp = async (req, res) => {
   }
 };
 
-// ------------------ RESET PASSWORD ------------------
 export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
   if (!email || !otp || !newPassword) {
@@ -325,7 +317,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.passwordHash = hashedPassword; // FIXED: use passwordHash field
+    user.passwordHash = hashedPassword; 
     user.resetOtp = "";
     user.resetOtpExpireAt = 0;
     await user.save();
