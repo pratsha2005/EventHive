@@ -14,7 +14,7 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "" }]);
+const [attendees, setAttendees] = useState([{ name: "", email: "", ticketType: "", price: 0}]);
 
   axios.defaults.withCredentials = true;
 
@@ -38,14 +38,23 @@ const EventDetails = () => {
   const addAttendee = () => setAttendees([...attendees, { name: "", email: "", ticketType: "" }]);
   const removeAttendee = (index) => setAttendees(attendees.filter((_, i) => i !== index));
   const updateAttendee = (index, field, value) => {
-    const updated = [...attendees];
+  const updated = [...attendees];
+
+  if (field === "ticketType") {
+    const ticket = event.tickets.find((t) => t.type === value);
+    updated[index].ticketType = value;
+    updated[index].price = ticket ? ticket.price : 0;
+  } else {
     updated[index][field] = value;
-    setAttendees(updated);
-  };
+  }
+
+  setAttendees(updated);
+};
 
   const handleRegister = async () => {
     setRegistering(true);
     try {
+      console.log(attendees)
       const response = await axios.post(`${backendUrl}/api/payment/checkout`, {
         eventId: id,
         attendees,
