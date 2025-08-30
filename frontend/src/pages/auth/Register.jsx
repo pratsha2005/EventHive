@@ -29,11 +29,6 @@ const ROLE_OPTIONS = [
     label: "Organizer",
     icon: <FaUsers style={{ color: "#7c3aed", marginRight: 9 }} />,
   },
-  // {
-  //   value: "admin",
-  //   label: "Administrator",
-  //   icon: <FaCrown style={{ color: "#1e40af", marginRight: 9 }} />,
-  // },
 ];
 
 const customStyles = {
@@ -90,7 +85,6 @@ const Register = () => {
     avatar: null,
   });
 
-  const [agreementChecked, setAgreementChecked] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -305,7 +299,7 @@ const Register = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
+                  Username
                 </label>
                 <div className="relative">
                   <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
@@ -357,21 +351,6 @@ const Register = () => {
                     required
                   />
                 </div>
-              </div>
-
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Referral Code
-                </label>
-                <input
-                  name="referralCode"
-                  type="text"
-                  value={formData.referralCode}
-                  onChange={handleInputChange}
-                  placeholder="Enter referral code (optional)"
-                  className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-sm sm:text-base"
-                />
               </div>
 
               
