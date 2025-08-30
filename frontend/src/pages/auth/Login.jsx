@@ -37,7 +37,7 @@ const Login = () => {
       if (data.success) {
         setIsLoggedin(true);
         getUserData();
-        localStorage.setItem("isLoggedin", "true"); 
+        localStorage.setItem("isLoggedin", "true");
         toast.success(data.message);
 
         if (rememberMe) {

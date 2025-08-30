@@ -19,7 +19,7 @@ const EventDetails = () => {
 
   axios.defaults.withCredentials = true;
 
-  // Fetch event
+  
   const fetchEvent = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/events/getEventById/${id}`);
@@ -36,26 +36,26 @@ const EventDetails = () => {
     fetchEvent();
   }, [id]);
 
-  // Add more attendees
+  
   const addAttendee = () => {
     setAttendees([...attendees, { name: "", email: "", ticketType: "" }]);
   };
 
-  // Remove attendee
+  
   const removeAttendee = (index) => {
     const updated = [...attendees];
     updated.splice(index, 1);
     setAttendees(updated);
   };
 
-  // Update attendee info
+ 
   const updateAttendee = (index, field, value) => {
     const updated = [...attendees];
     updated[index][field] = value;
     setAttendees(updated);
   };
 
-  // Register API call
+
   const handleRegister = async () => {
     if (!isLoggedin) {
       toast.info("Please login to register for this event");
@@ -63,7 +63,7 @@ const EventDetails = () => {
       return;
     }
 
-    // Validate attendees
+
     for (let a of attendees) {
       if (!a.name || !a.email || !a.ticketType) {
         toast.warn("Please fill all fields (name, email, ticket type) for all attendees");
@@ -96,18 +96,18 @@ const EventDetails = () => {
     <>
       <Navbar />
       <main className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-lg mt-6">
-        {/* Banner */}
+       
         <img
           src={event.media?.bannerUrl || "https://via.placeholder.com/800x400"}
           alt={event.title}
           className="w-full h-80 object-cover rounded-lg mb-6"
         />
 
-        {/* Title & Description */}
+        
         <h1 className="text-3xl font-bold text-gray-800 mb-4">{event.title}</h1>
         <p className="text-gray-600 mb-6">{event.description}</p>
 
-        {/* Details */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h2 className="text-lg font-semibold">Details</h2>
@@ -127,7 +127,7 @@ const EventDetails = () => {
           </div>
         </div>
 
-        {/* Tickets */}
+        
         {event.tickets?.length > 0 && (
           <div className="mt-8">
             {!showBookingForm ? (
@@ -143,7 +143,7 @@ const EventDetails = () => {
               <>
                 <h2 className="text-lg font-semibold mb-4">Book Your Tickets</h2>
 
-                {/* Attendees */}
+                
                 {attendees.map((a, i) => (
                   <div key={i} className="flex flex-col md:flex-row gap-4 mb-3 items-center">
                     <input
@@ -184,7 +184,7 @@ const EventDetails = () => {
                   </div>
                 ))}
 
-                {/* Add attendee button */}
+               
                 <button
                   type="button"
                   onClick={addAttendee}
@@ -193,7 +193,7 @@ const EventDetails = () => {
                   + Add Another Attendee
                 </button>
 
-                {/* Register Button */}
+               
                 <div className="text-center mt-6">
                   <button
                     onClick={handleRegister}

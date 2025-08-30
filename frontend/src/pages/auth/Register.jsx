@@ -86,7 +86,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     referralCode: "",
-    role: ROLE_OPTIONS[0] || null, // ✅ fixed default role
+    role: ROLE_OPTIONS[0] || null, 
     avatar: null,
   });
 
@@ -129,7 +129,7 @@ const Register = () => {
 
     setFormData((prev) => ({ ...prev, avatar: file }));
 
-    // ✅ properly reset input
+    
     if (fileInputRef.current) fileInputRef.current.value = null;
 
     const reader = new FileReader();
@@ -225,7 +225,7 @@ const Register = () => {
               </p>
             </div>
             <form onSubmit={onSubmitHandler} className="space-y-6" noValidate>
-              {/* Avatar */}
+            
               <div>
                 <label className="block mb-2 font-semibold">
                   Avatar{" "}
@@ -283,7 +283,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Role Selection */}
+              
               <div>
                 <label className="block mb-2 font-semibold">Role</label>
                 <Select
@@ -298,11 +298,11 @@ const Register = () => {
                   placeholder="Select your role"
                 />
                 <span className="text-gray-400 text-xs mt-2 block">
-                  Choose your role for EventHive access.
+                  Choose your role for the EventHive access.
                 </span>
               </div>
 
-              {/* Full Name */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
@@ -321,7 +321,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Email */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -340,7 +340,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Phone Number */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number
@@ -359,7 +359,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Referral Code */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Referral Code
@@ -374,7 +374,7 @@ const Register = () => {
                 />
               </div>
 
-              {/* Password */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
@@ -404,7 +404,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Confirm Password */}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password

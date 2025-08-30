@@ -28,7 +28,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 🔹 Define nav links by role
+  
   const publicNav = [
     { name: "Home", href: "/", icon: FiHome },
     { name: "Explore Events", href: "/events", icon: FiCalendar },
@@ -71,7 +71,7 @@ const Navbar = () => {
     <nav className="bg-white/80 backdrop-blur-md shadow-lg border-b border-blue-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -83,7 +83,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Nav */}
+        
           <div className="hidden md:flex items-center space-x-4">
             {(isLoggedin ? getNavItems() : publicNav).map((item) => {
               const Icon = item.icon;
@@ -104,7 +104,7 @@ const Navbar = () => {
               );
             })}
 
-            {/* Auth Section */}
+           
             <div className="ml-6 flex items-center space-x-3">
               {!isLoggedin ? (
                 <>
@@ -190,7 +190,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -201,7 +201,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white/90 backdrop-blur-sm rounded-lg mt-2 shadow-lg border border-blue-100 mb-2">
@@ -225,7 +225,7 @@ const Navbar = () => {
                 );
               })}
 
-              {/* Mobile Auth */}
+              
               <div className="border-t border-gray-200 pt-3 mt-3">
                 {!isLoggedin ? (
                   <div className="space-y-2">

@@ -189,7 +189,7 @@ const ResetPassword = () => {
               </form>
             )}
 
-            {/* Enter OTP */}
+           
             {!isOtpVerified && isEmailSent && (
               <form onSubmit={onSubmitOTP} className="space-y-6">
                 <div className="text-center mb-8">
@@ -256,7 +256,7 @@ const ResetPassword = () => {
               </form>
             )}
 
-            {/* New Password */}
+            
             {isOtpVerified && isEmailSent && (
               <form onSubmit={onSubmitNewPassword} className="space-y-6">
                 <div className="text-center mb-8">
