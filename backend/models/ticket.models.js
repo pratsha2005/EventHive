@@ -35,8 +35,6 @@
     },
     delivery: {
       sentToEmail: { type: Boolean, default: false },
-      sentToWhatsApp: { type: Boolean, default: false },
-      downloadUrl: { type: String }, 
     },
     createdAt: {
       type: Date,

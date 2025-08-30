@@ -11,6 +11,7 @@ export const createCheckoutSession = async (req, res) => {
     const { eventId, attendees } = req.body;
     const userId = req.userId; // from userAuth
 
+    const url = process.env.BACKEND_URL || 'http://localhost:4000'
     const session = await stripe.checkout.sessions.create({
       line_items: attendees.map(att => ({
         price_data: {
@@ -28,8 +29,8 @@ export const createCheckoutSession = async (req, res) => {
         attendees: JSON.stringify(attendees),
         userId,
       },
-      success_url: `http://localhost:4000/api/payment/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:4000/api/payment/payment-cancel`,
+      success_url: `${url}/api/payment/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${url}/api/payment/payment-cancel`,
     });
 
     res.status(200).json({ url: session.url });
@@ -58,7 +59,8 @@ export const paymentSuccess = async (req, res) => {
     })
     // call your registration logic
     await registerForEvent(eventId, parsedAttendees, userId);
-    res.redirect("http://localhost:5173/my-bookings");
+    const url = process.env.FRONTEND_URL || 'http://localhost:5173'
+    res.redirect(`${url}/my-bookings`);
   } catch (err) {
     console.error("Payment success error:", err);
     res.status(500).send("Registration failed after payment");

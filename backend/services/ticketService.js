@@ -3,7 +3,7 @@ import Ticket from '../models/ticket.models.js';
 import transporter from '../config/nodemailer.js';
 import { getTicketEmailTemplate } from '../config/emailTemplates.js';
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 
 // 1️⃣ Generate QR Code and save temporarily
@@ -14,11 +14,20 @@ const generateQRCodeTempFile = async (ticketData) => {
   return tempPath;
 };
 
-// 2️⃣ Upload QR Code to Cloudinary
+// 2️⃣ Upload QR Code to Cloudinary and delete temp file
 const uploadQRCodeToCloudinary = async (filePath) => {
-  const result = await cloudinary.uploader.upload(filePath, {folder: 'event-tickets'});
-  fs.unlinkSync(filePath); // remove temp file
-  return result.secure_url;
+  try {
+    const result = await cloudinary.uploader.upload(filePath, { folder: 'event-tickets' });
+    return result.secure_url;
+  } finally {
+    // Delete temp file regardless of upload success/failure
+    try {
+      await fs.unlink(filePath);
+      console.log(`Temp QR file deleted: ${filePath}`);
+    } catch (err) {
+      console.error(`Failed to delete temp QR file: ${filePath}`, err);
+    }
+  }
 };
 
 // 3️⃣ Send ticket email
@@ -42,16 +51,17 @@ export const sendTicketEmail = async ({ email, name, eventName, eventDate, venue
   }
 };
 
-// 4️⃣ Create tickets for a booking and send QR email
-export const createTicketsForBooking = async (booking, user) => {
+// 4️⃣ Create tickets for a booking and send QR email to all attendees
+export const createTicketsForBooking = async (booking, attendees) => {
   const ticketsCreated = [];
 
-  for (const t of booking.tickets) {
+  for (const attendee of attendees) {
     const ticket = new Ticket({
       bookingId: booking._id,
       eventId: booking.eventId,
-      userId: user._id,
-      ticketType: t.type || 'General',
+      userId: attendee._id, // assign attendee userId if exists
+      ticketType: attendee.ticket?.type || 'General',
+      delivery: { sentToEmail: true},
     });
 
     // Generate QR -> Upload to Cloudinary
@@ -59,18 +69,19 @@ export const createTicketsForBooking = async (booking, user) => {
       ticketId: ticket._id,
       bookingId: ticket.bookingId,
       eventId: ticket.eventId,
-      userId: ticket.userId,
+      userId: attendee._id,
     });
+
     const qrUrl = await uploadQRCodeToCloudinary(tempFile);
 
     ticket.qrCode = qrUrl;
     await ticket.save();
     ticketsCreated.push(ticket);
 
-    // Send email
+    // Send email to attendee
     await sendTicketEmail({
-      email: user.email,
-      name: user.name,
+      email: attendee.email,
+      name: attendee.name,
       eventName: booking.eventName,
       eventDate: booking.eventDate,
       venue: booking.venue,
