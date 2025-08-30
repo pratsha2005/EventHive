@@ -7,10 +7,6 @@ const attendeeSchema = mongoose.Schema(
       ref: "Event",
       required: true,
     },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
     name: { type: String, required: true },   
     email: { type: String, required: true },
 
