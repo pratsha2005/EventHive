@@ -32,8 +32,8 @@ const getAllEvents = async(req, res) => {
         const events = await Event.find().populate("organizerId", "name email"); 
         if(!events){
             return res.status(400).json({
-                success: false,
-                message: "No Events fetched"
+              success: false,
+              message: "No Events fetched"
             })
         }
         res.status(200).json({
