@@ -11,6 +11,8 @@ import Organiser from './pages/user/Organiser'
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import MyBookings from './pages/MyBookings';
+import AddEvent from './pages/AddEvent';
+import MyEvents from './pages/MyEvents';
 
 const App = () => {
   return (
@@ -29,7 +31,8 @@ const App = () => {
         <Route path="/organise" element={<Organiser/>} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path='/my-bookings' element={<MyBookings/>}/>
-
+        <Route path='/create-event' element={<AddEvent/>}/>
+        <Route path='/my-events' element={<MyEvents/>}/>
       </Routes>
     </div>
   )

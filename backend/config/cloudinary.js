@@ -15,9 +15,11 @@ export const connectCloudinary = async () => {
 };
 
 // Unified upload helper
-export const uploadToCloudinary = async (filePath, options = {}) => {
+export const uploadToCloudinary = async (filePath, folder) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, options);
+    const result = await cloudinary.uploader.upload(filePath, {
+    folder, 
+  });
     // delete local file after successful upload
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     return result;

@@ -16,9 +16,7 @@ const generateQRCodeTempFile = async (ticketData) => {
 
 // 2️⃣ Upload QR Code to Cloudinary
 const uploadQRCodeToCloudinary = async (filePath) => {
-  const result = await cloudinary.uploader.upload(filePath, {
-    folder: 'event_tickets',
-  });
+  const result = await cloudinary.uploader.upload(filePath, 'event-tickets');
   fs.unlinkSync(filePath); // remove temp file
   return result.secure_url;
 };

@@ -2,7 +2,6 @@ import User from "../models/userModel.js";
 import { Event } from "../models/events.models.js"; 
 import { Attendee } from "../models/attendee.models.js";
 import Ticket from "../models/ticket.models.js"; 
-import QRCode from "qrcode";
 import mongoose from "mongoose";
 import { createTicketsForBooking } from "../services/ticketService.js";
 
@@ -21,6 +20,7 @@ export const getUserData = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                role: user.role,
                 isAccountVerified: user.isAccountVerified
             }
         });
@@ -136,7 +136,53 @@ const registerForEvent = async (req, res) => {
   }
 };
 
+const getMyBookings = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Get user to verify existence (optional if you trust userId)
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Find all tickets for the user
+    const myTickets = await Ticket.find({ userId })
+      .populate("eventId")   // populate event details
+
+    // Format response
+    const bookings = myTickets.map(ticket => ({
+      ticketId: ticket._id,
+      ticketType: ticket.ticketType,
+      qrCode: ticket.qrCode,
+      barcode: ticket.barcode,
+      status: ticket.status,
+      delivery: ticket.delivery,
+      event: {
+        id: ticket.eventId._id,
+        title: ticket.eventId.title,
+        date: ticket.eventId.date,
+        startDateTime: ticket.eventId.startDateTime,
+        endDateTime: ticket.eventId.endDateTime,
+        venue: ticket.eventId.venue,
+        location: ticket.eventId.location,
+        image: ticket.eventId.image,
+        category: ticket.eventId.category,
+      },
+      
+    }));
+
+    res.status(200).json({
+      message: "My bookings fetched successfully",
+      data: bookings,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
 export {
     getAllEvents,
+    getMyBookings,
     registerForEvent
 }

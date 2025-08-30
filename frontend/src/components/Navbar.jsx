@@ -42,7 +42,6 @@ const Navbar = () => {
 
   const organizerNav = [
     { name: "Home", href: "/", icon: FiHome },
-    { name: "My Events", href: "/organise", icon: FiCalendar },
     { name: "Create Event", href: "/create-event", icon: FiPlusCircle },
     { name: "Analytics", href: "/organiser-analytics", icon: FiBarChart2 },
   ];
@@ -152,15 +151,29 @@ const Navbar = () => {
                           Profile
                         </Link>
 
-                        {/* 🔹 My Bookings */}
-                        <Link
-                          to="/my-bookings"
-                          onClick={() => setShowDropdown(false)}
-                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                        >
-                          <FaTicketAlt size={16} className="mr-2" />
-                          My Bookings
-                        </Link>
+                        {/* 🔹 My Bookings (for attendees) */}
+                        {userRole === "attendee" && (
+                          <Link
+                            to="/my-bookings"
+                            onClick={() => setShowDropdown(false)}
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                          >
+                            <FaTicketAlt size={16} className="mr-2" />
+                            My Bookings
+                          </Link>
+                        )}
+
+                        {/* 🔹 My Events (for organizers) */}
+                        {userRole === "organizer" && (
+                          <Link
+                            to="/my-events"
+                            onClick={() => setShowDropdown(false)}
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                          >
+                            <FiCalendar size={16} className="mr-2" />
+                            My Events
+                          </Link>
+                        )}
 
                         <button
                           onClick={handleLogout}
@@ -248,15 +261,29 @@ const Navbar = () => {
                       Profile
                     </Link>
 
-                    {/* 🔹 My Bookings (Mobile) */}
-                    <Link
-                      to="/my-bookings"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                    >
-                      <FaTicketAlt size={16} className="mr-2" />
-                      My Bookings
-                    </Link>
+                    {/* 🔹 My Bookings (Mobile, for attendees) */}
+                    {userRole === "attendee" && (
+                      <Link
+                        to="/my-bookings"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                      >
+                        <FaTicketAlt size={16} className="mr-2" />
+                        My Bookings
+                      </Link>
+                    )}
+
+                    {/* 🔹 My Events (Mobile, for organizers) */}
+                    {userRole === "organizer" && (
+                      <Link
+                        to="/my-events"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                      >
+                        <FiCalendar size={16} className="mr-2" />
+                        My Events
+                      </Link>
+                    )}
 
                     <button
                       onClick={() => {
