@@ -1,16 +1,34 @@
-import {Router} from "express"
+import { Router } from "express";
 import {
-    addEvent, editEvent,
-    getAllEventsByEventManagerId,
-    getEventById
-} from '../controllers/events.controllers.js'
+  addEvent,
+  editEvent,
+  getAllEventsByEventManagerId,
+  getEventById
+} from "../controllers/events.controllers.js";
+import upload from "../middlewares/multer.js"; 
+import userAuth from "../middlewares/userAuth.js";
 
-const router = Router()
+const router = Router();
 
-router.route('/add-event').post(addEvent)
-router.route('/edit-event/:eventId').post(editEvent)
-router.route('/getAllEventByManagerId').get(verify, getAllEventsByEventManagerId)
-router.route('/getEventById/:eventId').get(getEventById)
+router.post(
+  "/add-event",
+  upload.fields([
+    { name: "banner", maxCount: 1 },
+    { name: "gallery", maxCount: 10 }
+  ]),
+  addEvent
+);
 
+router.post(
+  "/edit-event/:eventId",
+  upload.fields([
+    { name: "banner", maxCount: 1 },
+    { name: "gallery", maxCount: 10 }
+  ]),
+  editEvent
+);
 
-export default router
+router.get("/getAllEventByManagerId", userAuth, getAllEventsByEventManagerId);
+router.get("/getEventById/:eventId", getEventById);
+
+export default router;

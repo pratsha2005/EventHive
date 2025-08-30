@@ -1,18 +1,43 @@
 import { Event } from "../models/events.models.js";
 import { Attendee } from "../models/attendee.model.js";
 import Papa from "papaparse";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 
 
 
 const addEvent = async(req, res) => {
     try {
         const formData = req.body
-        //TODO: update req.body with media photos
+
+        // Handle uploaded photos from multer
+        let bannerUrl;
+        let galleryUrls = [];
+
+        if (req.files) {
+            if (req.files.banner && req.files.banner.length > 0) {
+                const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
+                bannerUrl = bannerUpload.secure_url;
+            }
+
+            if (req.files.gallery && req.files.gallery.length > 0) {
+                const galleryUploads = await Promise.all(
+                req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
+                );
+                galleryUrls = galleryUploads.map((p) => p.secure_url);
+            }
+        }
+
+        formData.media = {
+            bannerUrl,
+            gallery: galleryUrls,
+        };
+
+
         const newEvent = await Event.create(
             formData
         )
 
-        const createdEvent = Event.findById(newEvent._id)
+        const createdEvent = await Event.findById(newEvent._id);
 
         if(!createdEvent){
             return res.status(400).json({
@@ -36,45 +61,63 @@ const addEvent = async(req, res) => {
     }
 }
 
-const editEvent = async(req, res) => {
-    try {
-        const {eventId} = req.params
-        const eventToBeEdited = await Event.findById(eventId)
+const editEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const eventToBeEdited = await Event.findById(eventId);
 
-        if(!eventToBeEdited){
-            return res.status(400)
-            .json({
-                success: false,
-                message: "No Event was found"
-            })
-        }
-        
-        const editedEvent = await Event.findByIdAndUpdate(
-            eventToBeEdited._id,   // id of event
-            req.body,              // updated data
-            { new: true, runValidators: true } // options
+    if (!eventToBeEdited) {
+      return res.status(400).json({
+        success: false,
+        message: "No Event was found",
+      });
+    }
+
+    // Handle uploaded files
+    if (req.files) {
+      if (req.files.banner && req.files.banner.length > 0) {
+        const bannerUpload = await uploadToCloudinary(req.files.banner[0].path, "events/banner");
+        req.body["media.bannerUrl"] = bannerUpload.secure_url;
+      }
+
+      if (req.files.gallery && req.files.gallery.length > 0) {
+        const galleryUploads = await Promise.all(
+          req.files.gallery.map((file) => uploadToCloudinary(file.path, "events/gallery"))
         );
 
-        if(!editedEvent){
-            return res.status(400).json({
-                success: false,
-                message: "Something went wrong in editing the event"
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: "Event edited successfully",
-            data: editedEvent
-        })
-
-    } catch (error) {
-        console.log(error)
-        return res.status(400).json({
-            success: false, message: error.message 
-        });
+        const newGalleryUrls = galleryUploads.map((p) => p.secure_url);
+        req.body["media.gallery"] = [...(eventToBeEdited.media.gallery || []), ...newGalleryUrls];
+      }
     }
-}
+
+    const editedEvent = await Event.findByIdAndUpdate(
+      eventToBeEdited._id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!editedEvent) {
+      return res.status(400).json({
+        success: false,
+        message: "Something went wrong in editing the event",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Event edited successfully",
+      data: editedEvent,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({  
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 const getAllEventsByEventManagerId = async(req, res) => {
   

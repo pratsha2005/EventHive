@@ -4,7 +4,7 @@ import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 
 import connectDB from './db/index.js';
-import connectCloudinary from './config/cloudinary.js';
+import {connectCloudinary} from './config/cloudinary.js';
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 
