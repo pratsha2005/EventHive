@@ -4,6 +4,7 @@ import {
   editEvent,
   exportAsCSV,
   getAllEventsByEventManagerId,
+  getAttendeesByEventId,
   getEventById
 } from "../controllers/events.controllers.js";
 import upload from "../middlewares/multer.js"; 
@@ -31,7 +32,8 @@ router.post(
 );
 
 router.get("/getAllEventByManagerId", userAuth, getAllEventsByEventManagerId);
-router.get("/getEventById/:eventId", getEventById);
-router.get('/exportCSV/:eventId', exportAsCSV)
+router.get("/getEventById/:eventId",userAuth, getEventById);
+router.get('/exportCSV/:eventId',userAuth, exportAsCSV)
+router.get('/getAttendeesByEventId/:eventId',userAuth, getAttendeesByEventId );
 
 export default router;

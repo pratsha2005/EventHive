@@ -195,6 +195,48 @@ const exportAsCSV = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+const getAttendeesByEventId = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const attendees = await Attendee.find({ eventId: eventId });
+
+    if (!attendees.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No attendees found for this event",
+      });
+    }
+
+    const attendeeDetails = attendees.map((a) => ({
+      id: a._id,
+      name: a.name,
+      email: a.email,
+      ticket: {
+        type: a.ticket?.type || "N/A",
+        price: a.ticket?.price || 0,
+        currency: a.ticket?.currency || "N/A",
+      },
+      status: a.status,
+      registeredAt: a.createdAt,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendees fetched successfully",
+      data: attendeeDetails,
+    });
+
+  } catch (error) {
+    console.error("Error fetching attendees:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 //CSV
 
 
@@ -203,5 +245,6 @@ export {
     editEvent,
     getAllEventsByEventManagerId,
     getEventById,
-    exportAsCSV
+    exportAsCSV,
+    getAttendeesByEventId
 }

@@ -13,6 +13,7 @@ import EventDetails from './pages/EventDetails';
 import MyBookings from './pages/MyBookings';
 import AddEvent from './pages/AddEvent';
 import MyEvents from './pages/MyEvents';
+import AttendeeDetails from './pages/AttendeeDetails';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
         <Route path='/my-bookings' element={<MyBookings/>}/>
         <Route path='/create-event' element={<AddEvent/>}/>
         <Route path='/my-events' element={<MyEvents/>}/>
+        <Route path='/events/attendees/:id' element={<AttendeeDetails/>}/>
       </Routes>
     </div>
   )

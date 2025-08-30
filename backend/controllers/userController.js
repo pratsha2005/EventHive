@@ -56,17 +56,23 @@ const getAllEvents = async(req, res) => {
     }
 }
 
-const registerForEvent = async (req, res) => {
+
+
+/**
+ * Registers user for an event.
+ * If called from Stripe payment success, attendees can be passed as parameter
+ * instead of req.body.
+ */
+const registerForEvent = async (eventId, attendeesInput, userIdInput) => {
   try {
-    const { eventId } = req.params;
-    const { attendees } = req.body;
-    const userId = req.userId;
+    const userId = userIdInput;
+    const attendees = attendeesInput;
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) throw new Error("User not found");
 
     const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!event) throw new Error("Event not found");
 
     const createdAttendees = [];
 
@@ -79,31 +85,17 @@ const registerForEvent = async (req, res) => {
       venue: event.location?.venue || "",
     };
 
-    // Validate attendees and ticket availability
     for (const attendeeData of attendees) {
-      // 🔹 Find ticket by type (instead of ticketId)
       const ticketInfo = event.tickets.find(
         (t) => t.type.toLowerCase() === attendeeData.ticketType.toLowerCase()
       );
 
-      if (!ticketInfo) {
-        return res.status(400).json({
-          message: `Invalid ticket type "${attendeeData.ticketType}" for ${attendeeData.name}`,
-        });
-      }
+      if (!ticketInfo) throw new Error(`Invalid ticket type "${attendeeData.ticketType}" for ${attendeeData.name}`);
+      if (ticketInfo.soldCount >= ticketInfo.maxQuantity) throw new Error(`Ticket ${ticketInfo.type} sold out`);
 
-      if (ticketInfo.soldCount >= ticketInfo.maxQuantity) {
-        return res.status(400).json({
-          message: `Ticket ${ticketInfo.type} sold out`,
-        });
-      }
-
-      // Update sold count
       ticketInfo.soldCount += 1;
-
       booking.tickets.push({ type: ticketInfo.type });
 
-      // Save attendee
       const attendee = await Attendee.create({
         eventId,
         name: attendeeData.name,
@@ -122,19 +114,15 @@ const registerForEvent = async (req, res) => {
 
     await event.save();
 
-    // Generate tickets + QR codes
     const createdTickets = await createTicketsForBooking(booking, user);
 
-    res.status(201).json({
-      message: "Registration successful",
-      attendees: createdAttendees,
-      tickets: createdTickets,
-    });
+    return { message: "Registration successful", attendees: createdAttendees, tickets: createdTickets };
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error("registerForEvent error:", err);
+    throw err; // Throw error so it can be caught by Stripe controller
   }
 };
+
 
 const getMyBookings = async (req, res) => {
   try {

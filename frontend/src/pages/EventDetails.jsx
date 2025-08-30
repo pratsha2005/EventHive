@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { backendUrl, isLoggedin } = useContext(AppContext);
+  const { backendUrl, isLoggedin, userData } = useContext(AppContext); // ⬅️ use userData from context
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,6 @@ const EventDetails = () => {
 
   axios.defaults.withCredentials = true;
 
-  
   const fetchEvent = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/events/getEventById/${id}`);
@@ -36,59 +35,35 @@ const EventDetails = () => {
     fetchEvent();
   }, [id]);
 
-  
   const addAttendee = () => {
     setAttendees([...attendees, { name: "", email: "", ticketType: "" }]);
   };
 
-  
   const removeAttendee = (index) => {
     const updated = [...attendees];
     updated.splice(index, 1);
     setAttendees(updated);
   };
 
- 
   const updateAttendee = (index, field, value) => {
     const updated = [...attendees];
     updated[index][field] = value;
     setAttendees(updated);
   };
 
+const handleRegister = async () => {
+  try {
+    const response = await axios.post(`${backendUrl}/api/payment/checkout`, {
+      eventId: id,
+      attendees,
+    });
 
-  const handleRegister = async () => {
-    if (!isLoggedin) {
-      toast.info("Please login to register for this event");
-      navigate("/login");
-      return;
-    }
-
-
-    for (let a of attendees) {
-      if (!a.name || !a.email || !a.ticketType) {
-        toast.warn("Please fill all fields (name, email, ticket type) for all attendees");
-        return;
-      }
-    }
-
-    const payload = { attendees };
-
-    try {
-      setRegistering(true);
-      const { data } = await axios.post(
-        `${backendUrl}/api/user/register/${id}`,
-        payload,
-        { withCredentials: true }
-      );
-      toast.success(data.message || "Successfully registered!");
-    } catch (err) {
-      console.error("Error registering:", err);
-      toast.error(err.response?.data?.message || "Registration failed");
-    } finally {
-      setRegistering(false);
-    }
-  };
-
+    // Redirect to Stripe Checkout
+    window.location.href = response.data.url;
+  } catch (err) {
+    console.error("Checkout error:", err);
+  }
+};
   if (loading) return <p className="p-8 text-center">Loading...</p>;
   if (!event) return <p className="p-8 text-center">Event not found</p>;
 
@@ -96,18 +71,15 @@ const EventDetails = () => {
     <>
       <Navbar />
       <main className="max-w-5xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-lg mt-6">
-       
         <img
           src={event.media?.bannerUrl || "https://via.placeholder.com/800x400"}
           alt={event.title}
           className="w-full h-80 object-cover rounded-lg mb-6"
         />
 
-        
         <h1 className="text-3xl font-bold text-gray-800 mb-4">{event.title}</h1>
         <p className="text-gray-600 mb-6">{event.description}</p>
 
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h2 className="text-lg font-semibold">Details</h2>
@@ -127,10 +99,19 @@ const EventDetails = () => {
           </div>
         </div>
 
-        
+        {/* Show different button depending on userData.role */}
         {event.tickets?.length > 0 && (
           <div className="mt-8">
-            {!showBookingForm ? (
+            {userData?.role === "organizer" ? (
+              <div className="text-center">
+                <button
+                  onClick={() => navigate(`/events/attendees/${id}`)}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md"
+                >
+                  View Attendees
+                </button>
+              </div>
+            ) : !showBookingForm ? (
               <div className="text-center">
                 <button
                   onClick={() => setShowBookingForm(true)}
@@ -143,7 +124,6 @@ const EventDetails = () => {
               <>
                 <h2 className="text-lg font-semibold mb-4">Book Your Tickets</h2>
 
-                
                 {attendees.map((a, i) => (
                   <div key={i} className="flex flex-col md:flex-row gap-4 mb-3 items-center">
                     <input
@@ -184,7 +164,6 @@ const EventDetails = () => {
                   </div>
                 ))}
 
-               
                 <button
                   type="button"
                   onClick={addAttendee}
@@ -193,7 +172,6 @@ const EventDetails = () => {
                   + Add Another Attendee
                 </button>
 
-               
                 <div className="text-center mt-6">
                   <button
                     onClick={handleRegister}
