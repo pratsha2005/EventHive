@@ -86,8 +86,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     referralCode: "",
-    role: ROLE_OPTIONS[0] || null, // ✅ fixed default role
-    avatar: null,
+    role: ROLE_OPTIONS[0] || null, 
   });
 
   const [agreementChecked, setAgreementChecked] = useState(false);

@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema(
 
     passwordHash: { type: String, required: true },
 
-    // Possible roles: admin, organizer, attendee
     role: {
       type: String,
       enum: ["admin", "organizer", "attendee"],
