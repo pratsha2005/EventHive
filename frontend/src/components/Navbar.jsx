@@ -1,44 +1,82 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiUser, FiFilter, FiBarChart2, FiHome, FiLogOut, FiSettings } from 'react-icons/fi';
+import React, { useState, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  FiMenu,
+  FiX,
+  FiUser,
+  FiLogOut,
+  FiHome,
+  FiCalendar,
+  FiBarChart2,
+  FiSettings,
+  FiPlusCircle,
+  FiUsers
+} from "react-icons/fi";
+import { FaTicketAlt } from "react-icons/fa";
 
-const Navbar = ({ isLoggedIn, setIsLoggedIn, userAvatar }) => {
+import { AppContext } from "../context/AppContext";
+
+const Navbar = () => {
+  const { isLoggedin, setIsLoggedin, userData } = useContext(AppContext);
+  const userAvatar = userData?.avatar || null;
+  const userRole = userData?.role || null;
+  const username =
+    userData?.name || userData?.username || userData?.email || "User";
+
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const navItems = [
-    { name: 'Home', href: '/', icon: FiHome },
-    { name: 'Dashboard', href: '/dashboard', icon: FiBarChart2 },
-    { name: 'Profile', href: '/profile', icon: FiUser },
-    { name: 'Filters', href: '/filters', icon: FiFilter },
-    { name: 'Admin', href: '/admin', icon: FiSettings },
+  // 🔹 Define nav links by role
+  const publicNav = [
+    { name: "Home", href: "/", icon: FiHome },
+    { name: "Explore Events", href: "/events", icon: FiCalendar },
   ];
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    console.log('User logged in');
-  };
+  const attendeeNav = [
+    { name: "Home", href: "/", icon: FiHome },
+    { name: "My Bookings", href: "/my-bookings", icon: FaTicketAlt },
+    { name: "Explore Events", href: "/events", icon: FiCalendar },
+  ];
 
-  const handleSignup = () => {
-    setIsLoggedIn(true);
-    console.log('User signed up');
+  const organizerNav = [
+    { name: "Home", href: "/", icon: FiHome },
+    { name: "My Events", href: "/organise", icon: FiCalendar },
+    { name: "Create Event", href: "/create-event", icon: FiPlusCircle },
+    { name: "Analytics", href: "/organiser-analytics", icon: FiBarChart2 },
+  ];
+
+  const adminNav = [
+    { name: "Home", href: "/", icon: FiHome },
+    { name: "User Management", href: "/admin/users", icon: FiUsers },
+    { name: "All Events", href: "/admin/events", icon: FiCalendar },
+    { name: "System Analytics", href: "/admin/analytics", icon: FiSettings },
+  ];
+
+  const getNavItems = () => {
+    if (userRole === "attendee") return attendeeNav;
+    if (userRole === "organizer") return organizerNav;
+    if (userRole === "admin") return adminNav;
+    return publicNav;
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    setIsLoggedin(false);
+    localStorage.removeItem("isLoggedin");
     setShowDropdown(false);
-    console.log('User logged out');
+    navigate("/");
   };
 
   return (
     <nav className="bg-white/80 backdrop-blur-md shadow-lg border-b border-blue-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
+                <span className="text-white font-bold text-lg">EH</span>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 EventHive
@@ -46,84 +84,89 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userAvatar }) => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-baseline space-x-4">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700 shadow-sm'
-                        : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-                    }`}
-                  >
-                    <Icon size={16} />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-            
+            {(isLoggedin ? getNavItems() : publicNav).map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-blue-100 text-blue-700 shadow-sm"
+                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+
             {/* Auth Section */}
             <div className="ml-6 flex items-center space-x-3">
-              {!isLoggedIn ? (
+              {!isLoggedin ? (
                 <>
-                  <button
-                    onClick={handleLogin}
+                  <Link
+                    to="/login"
                     className="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
                   >
                     Login
-                  </button>
-                  <button
-                    onClick={handleSignup}
+                  </Link>
+                  <Link
+                    to="/register"
                     className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm"
                   >
                     Sign Up
-                  </button>
+                  </Link>
                 </>
               ) : (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-medium hover:shadow-lg transition-all duration-200"
-                  >
-                    {userAvatar ? (
-                      <img src={userAvatar} alt="Avatar" className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <FiUser size={20} />
+                <div className="flex items-center space-x-3">
+                  <span className="text-gray-700 font-medium">{username}</span>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-medium hover:shadow-lg transition-all duration-200"
+                    >
+                      {userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt="Avatar"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <FiUser size={20} />
+                      )}
+                    </button>
+
+                    {showDropdown && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+                        <Link
+                          to="/profile"
+                          onClick={() => setShowDropdown(false)}
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
+                          <FiUser size={16} className="mr-2" />
+                          Profile
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        >
+                          <FiLogOut size={16} className="mr-2" />
+                          Logout
+                        </button>
+                      </div>
                     )}
-                  </button>
-                  
-                  {showDropdown && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
-                      <Link
-                        to="/profile"
-                        onClick={() => setShowDropdown(false)}
-                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                      >
-                        <FiUser size={16} className="mr-2" />
-                        Profile
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
-                      >
-                        <FiLogOut size={16} className="mr-2" />
-                        Logout
-                      </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Toggle */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -134,11 +177,11 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userAvatar }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white/90 backdrop-blur-sm rounded-lg mt-2 shadow-lg border border-blue-100 mb-2">
-              {navItems.map((item) => {
+              {(isLoggedin ? getNavItems() : publicNav).map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
                 return (
@@ -148,8 +191,8 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userAvatar }) => {
                     onClick={() => setIsOpen(false)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                        ? "bg-blue-100 text-blue-700"
+                        : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                     }`}
                   >
                     <Icon size={16} />
@@ -157,26 +200,34 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userAvatar }) => {
                   </Link>
                 );
               })}
-              
-              {/* Mobile Auth Section */}
+
+              {/* Mobile Auth */}
               <div className="border-t border-gray-200 pt-3 mt-3">
-                {!isLoggedIn ? (
+                {!isLoggedin ? (
                   <div className="space-y-2">
-                    <button
-                      onClick={handleLogin}
+                    <Link
+                      to="/login"
+                      onClick={() => setIsOpen(false)}
                       className="w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
                     >
                       Login
-                    </button>
-                    <button
-                      onClick={handleSignup}
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setIsOpen(false)}
                       className="w-full text-left px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
                     >
                       Sign Up
-                    </button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-2">
+                    <div className="flex items-center space-x-2 px-3">
+                      <FiUser size={16} />
+                      <span className="text-gray-700 font-medium">
+                        {username}
+                      </span>
+                    </div>
                     <Link
                       to="/profile"
                       onClick={() => setIsOpen(false)}

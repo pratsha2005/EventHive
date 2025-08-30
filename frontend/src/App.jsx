@@ -7,9 +7,10 @@ import Register from './pages/auth/Register'
 import EmailVerify from './pages/auth/EmailVerify'
 import ResetPassword from './pages/auth/ResetPassword'
 import LandingPage from './pages/Landing'
-
-import AttendeeHome from './pages/user/AttendeeHome';
+import Organiser from './pages/user/Organiser'
 import MyBookings from './pages/user/MyBookings';
+import Events from './pages/Events';
+import EventDetails from './pages/EventDetails';
 
 const App = () => {
   return (
@@ -17,7 +18,6 @@ const App = () => {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<LandingPage/>} />
-        {/* <Route path="/" element={<Login />} /> */}
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -25,7 +25,9 @@ const App = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Attendee or Organizer Routes */}
         <Route path="/my-bookings" element={<MyBookings/>} />
-        <Route path="/attendeeHome" element={<AttendeeHome/>} />
+        <Route path="/events" element={<Events/>} />
+        <Route path="/organise" element={<Organiser/>} />
+        <Route path="/events/:id" element={<EventDetails />} />
 
       </Routes>
     </div>

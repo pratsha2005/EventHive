@@ -37,6 +37,7 @@ const Login = () => {
       if (data.success) {
         setIsLoggedin(true);
         getUserData();
+        localStorage.setItem("isLoggedin", "true"); // ✅ persist
         toast.success(data.message);
 
         if (rememberMe) {
@@ -44,8 +45,7 @@ const Login = () => {
         } else {
           localStorage.removeItem("rememberedEmail");
         }
-
-        navigate("/attendeeHome");
+        navigate("/"); 
       } else {
         toast.error(data.message);
       }
