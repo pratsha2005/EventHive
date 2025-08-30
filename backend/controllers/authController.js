@@ -42,10 +42,8 @@ export const register = async (req, res) => {
 
     const referralCode = generateReferralCode(name);
 
-
     const SIGNUP_BONUS = 50;
     const REFERRAL_BONUS = 100;
-
 
     const newUser = new User({
       name,
@@ -59,7 +57,6 @@ export const register = async (req, res) => {
       loyaltyPoints: SIGNUP_BONUS, 
     });
 
- 
     if (referredBy) {
       const referrer = await User.findOne({ referralCode: referredBy });
       if (referrer) {
@@ -79,9 +76,8 @@ export const register = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000, 
     });
-
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
