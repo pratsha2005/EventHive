@@ -110,7 +110,7 @@ const registerForEvent = async (eventId, attendeesInput, userIdInput) => {
 
     await event.save();
 
-    const createdTickets = await createTicketsForBooking(booking, createdAttendees);
+    const createdTickets = await createTicketsForBooking(booking, createdAttendees, userId);
 
     return { message: "Registration successful", attendees: createdAttendees, tickets: createdTickets };
   } catch (err) {

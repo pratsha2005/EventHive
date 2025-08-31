@@ -15,18 +15,34 @@ import {
 import { FaTicketAlt } from "react-icons/fa";
 
 import { AppContext } from "../context/AppContext";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Navbar = () => {
-  const { isLoggedin, setIsLoggedin, userData } = useContext(AppContext);
-  const userAvatar = userData?.avatar || null;
-  const userRole = userData?.role || null;
-  const username =
-    userData?.name || userData?.username || userData?.email || "User";
+  const { isLoggedin, setIsLoggedin, backendUrl } = useContext(AppContext);
 
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const { data } = await axios.get(`${backendUrl}/api/user/data`, { withCredentials: true });
+          console.log("User data response:", data);
+          if (data.success) {
+            setUserData(data.userData);
+          }
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to fetch user data");
+        }
+      };
+      fetchUser();
+    }, [backendUrl]);
 
   
   const publicNav = [
@@ -51,9 +67,9 @@ const Navbar = () => {
   ];
 
   const getNavItems = () => {
-    if (userRole === "attendee") return attendeeNav;
-    if (userRole === "organizer") return organizerNav;
-    if (userRole === "admin") return adminNav;
+    if (userData?.role === "attendee") return attendeeNav;
+    if (userData?.role === "organizer") return organizerNav;
+    if (userData?.role === "admin") return adminNav;
     return publicNav;
   };
 
@@ -122,15 +138,15 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <span className="text-gray-700 font-medium">{username}</span>
+                  <span className="text-gray-700 font-medium">{userData?.name}</span>
                   <div className="relative">
                     <button
                       onClick={() => setShowDropdown(!showDropdown)}
                       className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-medium hover:shadow-lg transition-all duration-200"
                     >
-                      {userAvatar ? (
+                      {userData ? (
                         <img
-                          src={userAvatar}
+                          src={userData?.avatar}
                           alt="Avatar"
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -151,7 +167,7 @@ const Navbar = () => {
                         </Link>
 
                         {/* 🔹 My Bookings (for attendees) */}
-                        {userRole === "attendee" && (
+                        {userData?.role === "attendee" && (
                           <Link
                             to="/my-bookings"
                             onClick={() => setShowDropdown(false)}
@@ -163,7 +179,7 @@ const Navbar = () => {
                         )}
 
                         {/* 🔹 My Events (for organizers) */}
-                        {userRole === "organizer" && (
+                        {userData?.role === "organizer" && (
                           <Link
                             to="/my-events"
                             onClick={() => setShowDropdown(false)}
@@ -248,7 +264,7 @@ const Navbar = () => {
                     <div className="flex items-center space-x-2 px-3">
                       <FiUser size={16} />
                       <span className="text-gray-700 font-medium">
-                        {username}
+                        {userData?.name}
                       </span>
                     </div>
                     <Link
@@ -261,7 +277,7 @@ const Navbar = () => {
                     </Link>
 
                     {/* 🔹 My Bookings (Mobile, for attendees) */}
-                    {userRole === "attendee" && (
+                    {userData?.role === "attendee" && (
                       <Link
                         to="/my-bookings"
                         onClick={() => setIsOpen(false)}
@@ -273,7 +289,7 @@ const Navbar = () => {
                     )}
 
                     {/* 🔹 My Events (Mobile, for organizers) */}
-                    {userRole === "organizer" && (
+                    {userData?.role === "organizer" && (
                       <Link
                         to="/my-events"
                         onClick={() => setIsOpen(false)}
