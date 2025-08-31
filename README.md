@@ -8,6 +8,8 @@
 
 ## 🌐 Live Demo 
 > 🔗 [Live](https://eventhive1632.netlify.app/)
+> 🔗 [Youtube Link](https://youtu.be/SeTviiIV3ys)
+> 🔗 [PPT](https://drive.google.com/file/d/1v7NhEkErWIXvzEz1ZaALP5gExLlD1wFm/view?usp=sharing)
 
 ---
 
