@@ -7,7 +7,7 @@
 ---
 
 ## 🌐 Live Demo 
-> 🔗 [DocNow]()
+> 🔗 [EventHive](https://eventhive1632.netlify.app/)
 
 ---
 
