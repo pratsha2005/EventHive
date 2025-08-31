@@ -1,13 +1,13 @@
 # 📅 EventHive – Plan, Book & Celebrate with Ease 🚀
 
 
-*EventHive* is a modern, full-stack event management and ticketing platform that simplifies event creation, ticket sales, and attendee engagement. Built with a modular architecture consisting of a *React-based frontend, a powerful **organizer dashboard, and a secure **Node.js/Express + PostgreSQL backend*, EventHive provides a seamless experience for organizers, attendees.
+**EventHive** is a modern, full-stack event management and ticketing platform that simplifies event creation, ticket sales, and attendee engagement. Built with a modular architecture consisting of a **React-based frontend**, a powerful **organizer dashboard**, and a secure **Node.js/Express + MongoDB backend**, EventHive provides a seamless experience for organizers, attendees.
 
 
 ---
 
 ## 🌐 Live Demo 
-> 🔗 [EventHive](https://eventhive1632.netlify.app/)
+> 🔗 [DocNow]()
 
 ---
 
@@ -45,7 +45,11 @@
 - Auto-generated tickets with unique QR/Barcode  
 - Ticket delivery via Email  
 - Option to download from attendee dashboard  
+
+### 📢 Notifications & Reminders  
 - Booking confirmation via Email
+- Automated reminders: 24 hours & 1 hour before the event  
+- Push/SMS notification support  
 
 ### 📊 Organizer Dashboard  
 - Manage events, ticket inventory, and attendee lists  
@@ -56,6 +60,12 @@
 - View “My Tickets” and booking history  
 - Cancel bookings with refund policy  
 - Earn loyalty points & rewards for repeat participation  
+
+### 💸 Discounts & Promotions  
+- Create promo codes and coupons  
+- Early bird discounts  
+- Group booking offers (e.g., Buy 5, Get 1 Free)  
+- Referral rewards system  
 
 ### ✅ Event Check-In System  
 - QR/Barcode scanning for quick entry  
@@ -70,7 +80,7 @@
 ---
 
 ## 📦 Project Structure
-
+```
 📁 EventHive/
 ├── 📁 backend/
 │   ├── 📁 config/
@@ -114,7 +124,7 @@
 │   ├── .env
 │   └── index.html
 └── README.md
-
+```
 
 ---
 
@@ -122,7 +132,7 @@
 
 ### 🔧 Backend
 - Node.js, Express.js
-- PostgreSQL + Prisma 
+- PostgresSQL
 - Cloudinary
 - JWT Authentication
 - Multer
@@ -143,18 +153,18 @@
 ## 🚀 Installation
 
 ### 🔧 1. Clone the Repository
-bash
+```bash
 git clone https://github.com/pratsha2005/EventHive.git
 cd EventHive
-
-### ⚙ 2. Backend Setup (inside /server)
-bash
+```
+### ⚙️ 2. Backend Setup (inside /server)
+```bash
 cd backend
 npm install
-
+```
 Create a .env file and add:
-bash
-DATABASE_URI = ''
+```bash
+POSTGRESQL_URI = ''
 CLOUDINARY_NAME = ''
 CLOUDINARY_API_KEY = ''
 CLOUDINARY_SECRET_KEY = '' 
@@ -163,24 +173,24 @@ ADMIN_PASSWORD = ''
 JWT_SECRET = ''
 STRIPE_KEY_ID = ''   
 STRIPE_KEY_SECRET = '' 
-
+```
 Start the backend server:
-bash
+```bash
 npm run dev
-
+```
 ### 💻 3. Frontend Setup (inside /client)
-bash
+```bash
 cd ../frontend
 npm install
-
+```
 Set up environment:
-bash
+```bash
 VITE_BACKEND_URL = ''
-
+```
 Start the frontend:
-bash
+```bash
 npm run dev
-
+```
 
 ## 🕹 Usage Guide
 
@@ -204,28 +214,28 @@ npm run dev
 
 | Method | Endpoint | Description | Auth Required | Notes |
 |--------|----------|-------------|---------------|-------|
-| POST | /auth/register | Register a new user | ❌ | Accepts avatar as file upload |
-| POST | /auth/login | Login user | ❌ | - |
-| POST | /auth/logout | Logout user | ✅ | User must be logged in |
-| POST | /auth/send-verify-otp | Send OTP to verify account | ✅ | - |
-| POST | /auth/verify-account | Verify email/account | ✅ | - |
-| GET  | /auth/is-auth | Check if user is authenticated | ✅ | Returns user info |
-| POST | /auth/send-reset-otp | Send OTP for password reset | ❌ | - |
-| POST | /auth/reset-password | Reset password using OTP | ❌ | - |
+| POST | `/auth/register` | Register a new user | ❌ | Accepts `avatar` as file upload |
+| POST | `/auth/login` | Login user | ❌ | - |
+| POST | `/auth/logout` | Logout user | ✅ | User must be logged in |
+| POST | `/auth/send-verify-otp` | Send OTP to verify account | ✅ | - |
+| POST | `/auth/verify-account` | Verify email/account | ✅ | - |
+| GET  | `/auth/is-auth` | Check if user is authenticated | ✅ | Returns user info |
+| POST | `/auth/send-reset-otp` | Send OTP for password reset | ❌ | - |
+| POST | `/auth/reset-password` | Reset password using OTP | ❌ | - |
 
 | Method | Endpoint | Description | Auth Required | Notes |
 |--------|----------|-------------|---------------|-------|
-| POST | /events/add-event | Add a new event | ✅ | Accepts banner (1 file) & gallery (up to 10 files) |
-| POST | /events/edit-event/:eventId | Edit existing event | ✅ | Accepts banner & gallery as files |
-| GET  | /events/getAllEventByManagerId | Get all events created by manager | ✅ | - |
-| GET  | /events/getEventById/:eventId | Get details of a single event | ❌ | - |
-| GET  | /events/exportCSV/:eventId | Export attendee list as CSV | ❌ | - |
+| POST | `/events/add-event` | Add a new event | ✅ | Accepts `banner` (1 file) & `gallery` (up to 10 files) |
+| POST | `/events/edit-event/:eventId` | Edit existing event | ✅ | Accepts `banner` & `gallery` as files |
+| GET  | `/events/getAllEventByManagerId` | Get all events created by manager | ✅ | - |
+| GET  | `/events/getEventById/:eventId` | Get details of a single event | ❌ | - |
+| GET  | `/events/exportCSV/:eventId` | Export attendee list as CSV | ❌ | - |
 
 | Method | Endpoint | Description | Auth Required | Notes |
 |--------|----------|-------------|---------------|-------|
-| GET  | /user/data | Get logged-in user data | ✅ | - |
-| GET  | /user/getAllEvents | Get all available events | ✅ | - |
-| POST | /user/register/:eventId | Register for an event | ✅ | - |
+| GET  | `/user/data` | Get logged-in user data | ✅ | - |
+| GET  | `/user/getAllEvents` | Get all available events | ✅ | - |
+| POST | `/user/register/:eventId` | Register for an event | ✅ | - |
  
 
 📌 More endpoints available in API documentation.
@@ -234,42 +244,42 @@ npm run dev
 
 ## 🤝 Contributing
 
-We welcome contributions to improve *EventHive*!
+We welcome contributions to improve **EventHive**!
 
 ### 🧩 How to Contribute
 
 #### 1. Fork the Repository  
-   Click the *Fork* button on the top right of this page.
+   Click the **Fork** button on the top right of this page.
 
 #### 2. Clone Your Fork 
    Open terminal and run:
-   bash
+   ```bash
    git clone https://github.com/pratsha2005/EventHive.git
    cd EventHive
-   
+   ```
 
 #### 3. Create a feature branch:
    Use a clear naming convention:
-   bash
+   ```bash
    git checkout -b feature/new-feature
-   
+   ```
    
 #### 4. Make & Commit Your Changes
    Write clean, documented code and commit:
-   bash
+   ```bash
    git add .
    git commit -m "✨ Added: your change description"
-   
+   ```
    
 #### 5. Push to GitHub & Submit PR
-   bash
+   ```bash
    git push origin feature/your-feature-name
-   
+   ```
 #### 6. Then go to your forked repo on GitHub and open a Pull Request.
 
 ---
 
 ## ⭐ Motivation
 
-> 💡*PS:* If you found this project helpful or inspiring, please *[⭐ star the repository](https://github.com/pratsha2005/EventHive)* — it keeps me motivated to build and share more awesome projects like this one!
+> 💡**PS:** If you found this project helpful or inspiring, please **[⭐ star the repository](https://github.com/pratsha2005/EventHive)** — it keeps me motivated to build and share more awesome projects like this one!
 ---
