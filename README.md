@@ -7,7 +7,7 @@
 ---
 
 ## 🌐 Live Demo 
-> 🔗 [DocNow]()
+> 🔗 [Live](https://eventhive1632.netlify.app/)
 
 ---
 
@@ -17,9 +17,8 @@
 - [🛠 Technologies Used](#-technologies-used)
 - [🚀 Installation](#-installation)
 - [🕹 Usage Guide](#-usage-guide)
-- [📢 API Endpoints (Backend)](#-api-endpoints-backend)
+- [📢 API Endpoints](#-api-endpoints-backend)
 - [🤝 Contributing](#-contributing)
-- [📄 Motivation](#-motivation)
 
 ---
 
@@ -33,49 +32,34 @@
 - Create and publish events with details: title, description, date, time, venue, and category  
 - Add multiple ticket types (General, VIP, Student, Early Bird)  
 - Define ticket attributes: price, sale period, and quantity limits  
-- Save as draft or publish for public visibility  
 
 ### 🔍 Event Discovery & Booking  
 - Search and filter events by category, date, location, and price  
-- Featured/Trending event highlights  
 - Book multiple tickets with per-user limits  
-- Secure attendee registration and payment (UPI, cards, wallets, net banking)  
+- Secure attendee registration and payment (Stripe)  
 
 ### 🎫 Ticketing & Delivery  
 - Auto-generated tickets with unique QR/Barcode  
 - Ticket delivery via Email  
-- Option to download from attendee dashboard  
+- Option to download from attendees list in CSV format  
 
 ### 📢 Notifications & Reminders  
 - Booking confirmation via Email
-- Automated reminders: 24 hours & 1 hour before the event  
-- Push/SMS notification support  
 
 ### 📊 Organizer Dashboard  
 - Manage events, ticket inventory, and attendee lists  
 - Real-time sales analytics & revenue tracking  
-- Export attendee data in CSV/Excel  
+- Export attendee data in CSV 
 
 ### 🧑‍🤝‍🧑 Attendee Dashboard  
 - View “My Tickets” and booking history  
-- Cancel bookings with refund policy  
-- Earn loyalty points & rewards for repeat participation  
-
-### 💸 Discounts & Promotions  
-- Create promo codes and coupons  
-- Early bird discounts  
-- Group booking offers (e.g., Buy 5, Get 1 Free)  
-- Referral rewards system  
 
 ### ✅ Event Check-In System  
-- QR/Barcode scanning for quick entry  
+- QR scanning for quick entry  
 - Real-time validation to prevent duplicate entries  
-- Check-in stats available to organizers  
 
 ### 📈 Analytics & Reports  
 - Insights on ticket sales, revenue, and active attendees  
-- Demographic insights (location, ticket category)  
-- Downloadable reports for organizers  
 
 ---
 
@@ -132,22 +116,24 @@
 
 ### 🔧 Backend
 - Node.js, Express.js
-- PostgresSQL
+- MongoDB (PostgreSQL in separate branch)
 - Cloudinary
 - JWT Authentication
 - Multer
 - Stripe (Payments)
-- Google map Api (Locations)
+- Papaparser
+- Bcryptjs
+- Nodemailer
+- QRcode
+- Cookie-parser
 
-### 🎨 Frontend & Admin Panel
+### 🎨 Frontend
 - React.js
-- Tailwind CSS 
-- React Router DOM
 - Axios
 - React-icons
 - react-toastify
 - Stripe Checkout (Payments)
-- Google map (Locations)
+- Google Maps API (Locations)z
 ---
 
 ## 🚀 Installation
@@ -164,15 +150,19 @@ npm install
 ```
 Create a .env file and add:
 ```bash
-POSTGRESQL_URI = ''
-CLOUDINARY_NAME = ''
-CLOUDINARY_API_KEY = ''
-CLOUDINARY_SECRET_KEY = '' 
-ADMIN_EMAIL = ''
-ADMIN_PASSWORD = ''
-JWT_SECRET = ''
-STRIPE_KEY_ID = ''   
-STRIPE_KEY_SECRET = '' 
+BACKEND_URL=
+FRONTEND_URL=
+MONGODB_URI=
+DB_NAME=
+CLOUDINARY_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_SECRET_KEY=
+JWT_SECRET=
+NODE_ENV=
+SMTP_USER=
+SMPT_PASS=
+SENDER_EMAIL=
+STRIPE_KEY_SECRET=
 ```
 Start the backend server:
 ```bash
@@ -185,7 +175,8 @@ npm install
 ```
 Set up environment:
 ```bash
-VITE_BACKEND_URL = ''
+VITE_BACKEND_URL=
+VITE_GOOGLE_MAPS_API_KEY=
 ```
 Start the frontend:
 ```bash
@@ -210,7 +201,7 @@ npm run dev
 - Send notifications/reminders to attendees   
 ---
 
-## 🛠 API Endpoints
+## 🛠 API Endpoints Backend
 
 | Method | Endpoint | Description | Auth Required | Notes |
 |--------|----------|-------------|---------------|-------|
@@ -236,9 +227,14 @@ npm run dev
 | GET  | `/user/data` | Get logged-in user data | ✅ | - |
 | GET  | `/user/getAllEvents` | Get all available events | ✅ | - |
 | POST | `/user/register/:eventId` | Register for an event | ✅ | - |
- 
+| GET  | `/user/update` | Update user profile | ✅ | - |
+| POST | `/user/myBookings` | Get user bookings | ✅ | - |
 
-📌 More endpoints available in API documentation.
+| Method | Endpoint | Description | Auth Required | Notes |
+|--------|----------|-------------|---------------|-------|
+| POST  | `/payment/checkout` | Redirect to payment gateway | ✅ | - |
+| GET  | `/payment/payment-success` | Redirect to payment success page | ✅ | - |
+
 
 ---
 
@@ -277,9 +273,3 @@ We welcome contributions to improve **EventHive**!
    ```
 #### 6. Then go to your forked repo on GitHub and open a Pull Request.
 
----
-
-## ⭐ Motivation
-
-> 💡**PS:** If you found this project helpful or inspiring, please **[⭐ star the repository](https://github.com/pratsha2005/EventHive)** — it keeps me motivated to build and share more awesome projects like this one!
----
